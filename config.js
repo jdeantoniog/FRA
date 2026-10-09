@@ -12,6 +12,7 @@ window.CONFIG = {
   version: "es-fr",              // identificador de esta web: separa su caché de otras páginas del mismo dominio
   idiomaAprender: "fr",          // frase del día y expresiones útiles en francés (con traducción al español)
   zonaPrincipal: "pais",         // Madrid y París tienen la misma hora
+  mostrarDiferencia: false,      // sin diferencia horaria (con tres banderas tampoco se muestra)
 
   /* ---------- Francia (bandera de la derecha) ---------- */
   usa: {
@@ -66,7 +67,8 @@ window.CONFIG = {
   /* ---------- España (bandera de la izquierda) ---------- */
   pais: {
     nombre: "España",
-    bandera: "ES",
+    bandera: "MD",                 // Comunidad de Madrid
+    nombreBandera: "Comunidad de Madrid",
     ciudadReloj: "Madrid",
     zonaHoraria: "Europe/Madrid",
     tiempo: { nombre: "Madrid (Montecarmelo)", lat: 40.5050, lon: -3.6920 },
@@ -168,9 +170,10 @@ window.CONFIG = {
     ]
   },
 
-  // Tercer lugar con tiempo y "Sol y aire" (sin bandera ni reloj)
+  // Tercer lugar: con bandera, reloj y tiempo actual entre Madrid y Francia, y con su tarjeta de tiempo y "Sol y aire"
   lugaresExtra: [
-    { nombre: "Somo (Ribamontán al Mar)", lat: 43.4545, lon: -3.7370, zonaHoraria: "Europe/Madrid" }
+    { nombre: "Somo (Ribamontán al Mar)", lat: 43.4545, lon: -3.7370, zonaHoraria: "Europe/Madrid",
+      bandera: "SOMO", nombreBandera: "playa de Somo", ciudadReloj: "Somo" }   // "CB" para la de Cantabria
   ],
   ordenTiempo: ["pais", "usa"],
   diasTiempo: 6,
@@ -185,7 +188,27 @@ window.CONFIG = {
     { fecha: "12-25", texto: "¡Feliz Navidad! Joyeux Noël !" }
   ],
 
-  ordenSecciones: ["calendario", "proximasFechas", "conversor", "solAire", "expresiones"],
+  ordenSecciones: ["calendario", "proximasFechas", "conversor", "solAire", "expresiones", "noticias"],
+
+  /* ---------- Noticias políticas (abajo del todo) ----------
+     RSS directos de varios medios de líneas editoriales distintas; los titulares de cada país se mezclan por fecha.
+     Para añadir o quitar un medio: una línea { nombre, rss } en "fuentes". */
+  noticias: {
+    porPais: 10,
+    minutosCache: 30,
+    paises: [
+      { nombre: "España", fuentes: [
+        { nombre: "El País", rss: "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/espana/portada" },
+        { nombre: "El Mundo", rss: "https://e00-elmundo.uecdn.es/elmundo/rss/espana.xml" }
+      ] },
+      { nombre: "Francia", fuentes: [
+        { nombre: "Le Monde", rss: "https://www.lemonde.fr/politique/rss_full.xml" },
+        { nombre: "Le Figaro", rss: "https://www.lefigaro.fr/rss/figaro_politique.xml" },
+        { nombre: "franceinfo", rss: "https://www.francetvinfo.fr/politique.rss" }
+      ] }
+    ]
+  },
+
   palabrasPorDia: 20,
   proximasFechasDias: 31,
   mostrarFechas: 12,

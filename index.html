@@ -107,6 +107,22 @@
     font-size: 0.85rem; font-weight: 600; margin-top: 2px; font-variant-numeric: tabular-nums;
     line-height: 1.3; min-height: 1.3em;
   }
+  .gap[hidden] { display: none; }
+  .flags.no-gap { grid-template-columns: 1fr 1fr; gap: 20px; }
+  /* Tres banderas (país, lugar extra y segundo país) */
+  .flags.n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .flags.n3 .clock { font-size: clamp(1.45rem, 7.4vw, 3rem); gap: 0.12em; }
+  .flags.n3 .clock-place { font-size: 0.9rem; }
+  .flags.n3 .clock-date, .flags.n3 .clock-wx { font-size: 0.74rem; }
+  /* Noticias */
+  .news-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+  .news-tabs .chip[aria-pressed="true"] { background: var(--oh-accent-bg); color: var(--oh-on-accent); border-color: var(--oh-accent-bg); }
+  .news-list { list-style: none; margin: 0; padding: 0; }
+  .news-list li { padding: 9px 0; border-top: 1px solid var(--line); }
+  .news-list li:first-child { border-top: 0; }
+  .news-list a { color: var(--ink); text-decoration: none; font-weight: 600; line-height: 1.3; }
+  .news-list a:hover, .news-list a:focus-visible { text-decoration: underline; }
+  .news-meta { display: block; font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
   .gap { align-self: center; color: var(--muted); font-size: 0.85rem; text-align: center; white-space: nowrap; }
   .gap strong { display: block; color: var(--ink); font-size: 1.1rem; }
   .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex: none; }
@@ -481,6 +497,14 @@
     <p class="x-foot small muted"><span id="expr-count"></span> <button type="button" class="linkbtn" id="expr-reset" hidden>Reiniciar aprendidas</button></p>
   </section>
 
+  <!-- Noticias políticas (titulares de varios medios vía Google News) -->
+  <section class="card" id="news-card" aria-labelledby="news-title" hidden>
+    <h2 id="news-title">Noticias políticas</h2>
+    <div class="news-tabs" id="news-tabs" role="group" aria-label="País"></div>
+    <ul class="news-list" id="news-list" aria-live="polite"></ul>
+    <p class="small muted" id="news-foot"></p>
+  </section>
+
   <footer>
     <p id="updated"></p>
     <button type="button" id="refresh">Actualizar ahora</button>
@@ -641,6 +665,14 @@
     "desdeHoyDif": "desde hoy, {0} h de diferencia",
     "desdeHoyMisma": "desde hoy, misma hora",
     "yConj": " y ",
+    "noticias": "Noticias políticas",
+    "cargandoNoticias": "Cargando noticias…",
+    "sinNoticias": "No se han podido cargar las noticias. Pulsa Actualizar ahora.",
+    "noticiasGuardadas": "Sin conexión: titulares guardados {0}.",
+    "noticiasActualizadas": "Titulares actualizados {0}.",
+    "noticiasFuente": "Cada titular abre la noticia en su medio.",
+    "fuentes": "Fuentes: ",
+    "sinRespuesta": "sin respuesta",
     "noFechas": "No hay fechas próximas.",
     "porConfirmarParen": " (por confirmar)",
     "esHoy": "¡Es hoy!",
@@ -728,7 +760,7 @@
   }
 
   // Textos fijos del HTML
-  [["cal-title", "calendario"], ["cal-today", "hoy"], ["dates-title", "proximas"], ["expr-title", "expresiones"], ["expr-mode", "repaso"],
+  [["news-title", "noticias"], ["cal-title", "calendario"], ["cal-today", "hoy"], ["dates-title", "proximas"], ["expr-title", "expresiones"], ["expr-mode", "repaso"],
    ["expr-reset", "reiniciar"], ["refresh", "actualizar"], ["conv-title", "conversor"], ["uv-title", "solAire"], ["splash-hint", "tocaCerrar"],
    ["leg-prev", "legPrev"], ["leg-fam", "familia"], ["leg-sen", "diaSenalado"], ["leg-evt", "evento"]].forEach(function (x) {
     var el = document.getElementById(x[0]); if (el) el.textContent = T[x[1]];
@@ -759,7 +791,7 @@
 
   // Orden de las secciones debajo del tiempo (config.js > ordenSecciones)
   (function () {
-    var IDS = { calendario: "cal-card", proximasFechas: "dates-card", conversor: "conv-card", solAire: "uv-card", expresiones: "expr-card" };
+    var IDS = { calendario: "cal-card", proximasFechas: "dates-card", conversor: "conv-card", solAire: "uv-card", expresiones: "expr-card", noticias: "news-card" };
     var foot = document.querySelector("footer");
     (CFG.ordenSecciones || []).forEach(function (k) { var el = IDS[k] && $(IDS[k]); if (el) foot.parentNode.insertBefore(el, foot); });
     // Las que no estén en la lista se ocultan
@@ -824,6 +856,33 @@
   var FLAGS = {
     ES: { color: "#aa151b", confeti: ["#aa151b", "#f1bf00"], svg: function () {
       return '<rect width="750" height="500" fill="#aa151b"/><rect y="125" width="750" height="250" fill="#f1bf00"/>'; } },
+    // Comunidad de Madrid: rojo carmesí con siete estrellas blancas de cinco puntas (4 arriba y 3 abajo)
+    MD: { color: "#c8102e", confeti: ["#c8102e", "#d9d9d9"], svg: function (pos) {
+      pos = pos || { cx: 375, cy: 252, s: 1 };     // centro y escala de las estrellas (en la diagonal van a su triángulo)
+      function star(cx, cy, R) {
+        var pts = [];
+        for (var k = 0; k < 10; k++) {
+          var r = k % 2 === 0 ? R : R * 0.382, a = -Math.PI / 2 + k * Math.PI / 5;
+          pts.push((cx + r * Math.cos(a)).toFixed(1) + "," + (cy + r * Math.sin(a)).toFixed(1));
+        }
+        return '<polygon fill="#ffffff" points="' + pts.join(" ") + '"/>';
+      }
+      var html = '<rect width="750" height="500" fill="#c8102e"/>', R = 42 * pos.s, dx = 110 * pos.s, dy = 47 * pos.s;
+      for (var i = 0; i < 4; i++) html += star(pos.cx + (i - 1.5) * dx, pos.cy - dy, R);
+      for (var j = 0; j < 3; j++) html += star(pos.cx + (j - 1) * dx, pos.cy + dy, R);
+      return html; } },
+    // Playa de Somo (diseño propio, no oficial): cielo, sol, mar con olas de surf y arena
+    SOMO: { color: "#1f78b4", confeti: ["#1f78b4", "#f4c95d", "#8fd3f4"], svg: function () {
+      return '<rect width="750" height="500" fill="#8fd3f4"/>' +
+        '<circle cx="590" cy="105" r="62" fill="#ffd23f"/>' +
+        '<path d="M0 205 Q95 170 190 205 T380 205 T570 205 T760 205 V500 H0 Z" fill="#1f78b4"/>' +
+        '<path d="M0 262 Q95 232 190 262 T380 262 T570 262 T760 262" fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round"/>' +
+        '<path d="M-20 318 Q75 290 170 318 T360 318 T550 318 T740 318" fill="none" stroke="#bfe6fb" stroke-width="10" stroke-linecap="round"/>' +
+        '<path d="M0 372 Q125 345 250 372 T500 372 T760 372 V500 H0 Z" fill="#f4d58d"/>' +
+        '<path d="M0 372 Q125 345 250 372 T500 372 T760 372" fill="none" stroke="#ffffff" stroke-width="7"/>'; } },
+    // Cantabria (bandera civil, sin escudo): blanco arriba y rojo abajo
+    CB: { color: "#d52b1e", confeti: ["#d52b1e", "#d9d9d9"], svg: function () {
+      return '<rect width="750" height="250" fill="#ffffff"/><rect y="250" width="750" height="250" fill="#d52b1e"/>'; } },
     FR: { color: "#002654", confeti: ["#002654", "#ce1126"], svg: function () {
       return '<rect width="250" height="500" fill="#002654"/><rect x="250" width="250" height="500" fill="#ffffff"/><rect x="500" width="250" height="500" fill="#ce1126"/>'; } },
     IT: { color: "#008c45", confeti: ["#008c45", "#cd212a"], svg: function () {
@@ -855,13 +914,27 @@
       }
       return html; } }
   };
+  // Bandera partida: "ES+CB" en vertical (mitad izquierda y mitad derecha); "MD/CB" en diagonal
+  var flagSeq = 0;
   function flagOf(code) {
+    var raw = String(code || "").toUpperCase(), diag = raw.indexOf("/") !== -1, parts = raw.split(diag ? "/" : "+");
+    if (parts.length === 2 && FLAGS[parts[0]] && FLAGS[parts[1]]) {
+      var A = FLAGS[parts[0]], B = FLAGS[parts[1]];
+      return { color: A.color, confeti: A.confeti.concat(B.confeti), svg: function () {
+        var id = "fl" + (++flagSeq);
+        var ca = diag ? '<polygon points="0,0 750,0 0,500"/>' : '<rect width="375" height="500"/>';
+        var cb = diag ? '<polygon points="750,0 750,500 0,500"/>' : '<rect x="375" width="375" height="500"/>';
+        return '<defs><clipPath id="' + id + 'a">' + ca + '</clipPath><clipPath id="' + id + 'b">' + cb + '</clipPath></defs>' +
+          '<g clip-path="url(#' + id + 'a)">' + A.svg(diag ? { cx: 215, cy: 150, s: 0.62 } : null) + '</g>' +
+          '<g clip-path="url(#' + id + 'b)">' + B.svg() + '</g>' +
+          (diag ? '<line x1="750" y1="0" x2="0" y2="500" stroke="#ffffff" stroke-width="8"/>' : ''); } };
+    }
     return FLAGS[String(code || "").toUpperCase()] || { color: "#5c5c60", confeti: ["#5c5c60", "#a3a3a8"], svg: function () {
       return '<rect width="750" height="500" fill="#e0e0dd"/><text x="375" y="290" text-anchor="middle" font-size="140" font-weight="700" fill="#5c5c60">' +
         String(code || "?").replace(/[<>&"]/g, "") + "</text>"; } };
   }
   var FP = flagOf(P.bandera), FU = flagOf(U.bandera || "US");
-  $("flag-p").innerHTML = FP.svg(); $("flag-p").setAttribute("aria-label", tx("bandera", P.nombre));
+  $("flag-p").innerHTML = FP.svg(); $("flag-p").setAttribute("aria-label", tx("bandera", P.nombreBandera || P.nombre));
   $("flag-u").innerHTML = FU.svg(); $("flag-u").setAttribute("aria-label", tx("bandera", U.nombre));
   document.documentElement.style.setProperty("--c-pais", P.color || FP.color);
   $("leg-p").textContent = tx("festivoDe", countryName("pais"));
@@ -891,6 +964,26 @@
     btn.addEventListener("click", function () { toggle(menu.hidden); });
   })();
 
+  /* ---------- Banderas adicionales: lugaresExtra con "bandera" (van entre las dos principales) ---------- */
+  var EXTRA_FLAGS = (CFG.lugaresExtra || []).map(function (L, i) { return { L: L, key: "x" + i }; }).filter(function (x) { return x.L.bandera; });
+  (function () {
+    if (!EXTRA_FLAGS.length) return;
+    var gap = $("gap"), box = gap.parentNode;
+    EXTRA_FLAGS.forEach(function (x) {
+      var k = x.key, div = document.createElement("div");
+      div.className = "flag-block";
+      div.innerHTML = '<svg class="flag" id="flag-' + k + '" viewBox="0 0 750 500" role="img"></svg>' +
+        '<div class="clock"><span class="wx-ico" id="ico-' + k + '" aria-hidden="true"></span><span id="clock-' + k + '">--:--</span></div>' +
+        '<div class="clock-place" id="place-' + k + '"></div><div class="clock-date" id="date-' + k + '"></div><div class="clock-wx" id="wx-' + k + '"></div>';
+      box.insertBefore(div, gap);
+      $("flag-" + k).innerHTML = flagOf(x.L.bandera).svg();
+      $("flag-" + k).setAttribute("aria-label", tx("bandera", x.L.nombreBandera || x.L.nombre));
+      $("place-" + k).textContent = x.L.ciudadReloj || x.L.nombre;
+    });
+    gap.hidden = true;                                   // con tres banderas no cabe la diferencia horaria
+    box.classList.add("n3");
+  })();
+
   /* ---------- Relojes ---------- */
   $("place-p").textContent = P.ciudadReloj;
   $("place-u").textContent = U.ciudadReloj;
@@ -899,6 +992,12 @@
     $("clock-u").textContent = fmtTime(tzU);
     $("date-p").textContent = fmtDate(tzP);
     $("date-u").textContent = fmtDate(tzU);
+    EXTRA_FLAGS.forEach(function (x) {
+      var tz = x.L.zonaHoraria || tzMain;
+      $("clock-" + x.key).textContent = fmtTime(tz); $("date-" + x.key).textContent = fmtDate(tz);
+    });
+    if (EXTRA_FLAGS.length) return;
+    if (CFG.mostrarDiferencia === false) { $("gap").hidden = true; $("gap").parentNode.classList.add("no-gap"); return; }
     var diff = Math.abs(offsetMinutes(tzP) - offsetMinutes(tzU)) / 60;
     $("gap").innerHTML = diff ? "<strong>" + (Number.isInteger(diff) ? diff : nf1.format(diff)) + " h</strong>" + T.deDiferencia : "<strong>=</strong>" + T.mismaHora;
   }
@@ -1777,14 +1876,132 @@
     });
   }
 
+  /* ---------- Noticias políticas ----------
+     config.js > noticias: { porPais, minutosCache, paises: [{ nombre, fuentes: [{ nombre, rss }] }] }.
+     El navegador no puede leer un RSS de otra web directamente: se pide a un servicio intermedio
+     (rss2json, después allorigins y después codetabs, con 8 s de límite cada uno).
+     Los titulares de todas las fuentes de un país se mezclan por fecha. Sin conexión: última copia guardada. */
+  var NEWS = CFG.noticias, newsSel = 0, newsData = {};
+  function newsItemsFromXML(xml) {
+    var doc = new DOMParser().parseFromString(xml, "text/xml");
+    var nodes = doc.querySelectorAll("item");
+    if (!nodes.length) nodes = doc.querySelectorAll("entry");                 // Atom
+    return Array.prototype.map.call(nodes, function (it) {
+      function g(tag) { var el = it.querySelector(tag); return el ? el.textContent.trim() : ""; }
+      var le = it.querySelector("link"), link = le ? (le.textContent.trim() || le.getAttribute("href") || "") : "";
+      return { title: g("title"), link: link, date: g("pubDate") || g("updated") || g("published"), source: g("source") };
+    });
+  }
+  function withTimeout(url, ms) {
+    var ctl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctl) ctl.abort(); }, ms || 8000);
+    return fetch(url, ctl ? { signal: ctl.signal } : {}).then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error(r.status); return r; },
+      function (e) { clearTimeout(timer); throw e; });
+  }
+  var PROXIES = [
+    { via: "rss2json", go: function (u) {
+      return withTimeout("https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(u)).then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || d.status !== "ok" || !(d.items || []).length) throw new Error("rss2json");
+        return d.items.map(function (it) { return { title: it.title, link: it.link, date: it.pubDate, source: "" }; });
+      }); } },
+    { via: "allorigins", go: function (u) {
+      return withTimeout("https://api.allorigins.win/raw?url=" + encodeURIComponent(u)).then(function (r) { return r.text(); }).then(function (t) {
+        var x = newsItemsFromXML(t); if (!x.length) throw new Error("allorigins"); return x; }); } },
+    { via: "codetabs", go: function (u) {
+      return withTimeout("https://api.codetabs.com/v1/proxy/?quest=" + encodeURIComponent(u)).then(function (r) { return r.text(); }).then(function (t) {
+        var x = newsItemsFromXML(t); if (!x.length) throw new Error("codetabs"); return x; }); } }
+  ];
+  // Prueba los servicios en orden hasta que uno devuelva titulares
+  function fetchFeed(url) {
+    var i = 0;
+    function next() {
+      if (i >= PROXIES.length) return Promise.reject(new Error("sin respuesta"));
+      var P3 = PROXIES[i++];
+      return P3.go(url).then(function (items) { return { items: items, via: P3.via }; }, next);
+    }
+    return next();
+  }
+  function cleanNews(raw) {
+    var seen = {};
+    return raw.map(function (x) {
+      var title = String(x.title || "").replace(/\s+/g, " "), src = String(x.source || "");
+      if (x.splitSource) {                                                  // "Titular - Medio" (Google News)
+        var m = title.match(/^(.*)\s[-–]\s([^-–]{2,60})$/);
+        if (m) { title = m[1]; if (!src) src = m[2]; }
+      }
+      var ds = String(x.date || ""), iso = /^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$/.test(ds);   // rss2json: "AAAA-MM-DD hh:mm:ss" en UTC
+      var d = Date.parse(iso ? ds.replace(" ", "T") + "Z" : ds);
+      var link = /^https?:\/\//i.test(String(x.link || "").trim()) ? String(x.link).trim() : "";
+      return { t: title.trim(), s: src.trim(), l: link, d: isNaN(d) ? 0 : d };
+    }).filter(function (x) {
+      var k = x.t.toLowerCase();
+      if (!x.t || !x.l || seen[k]) return false;
+      seen[k] = 1; return true;
+    }).sort(function (a, b) { return b.d - a.d; }).slice(0, NEWS.porPais || 8);
+  }
+  function renderNews() {
+    if (!NEWS) return;
+    var P2 = NEWS.paises[newsSel], st = newsData[newsSel], ul = $("news-list"), foot = $("news-foot");
+    ul.innerHTML = "";
+    Array.prototype.forEach.call($("news-tabs").children, function (b, i) { b.setAttribute("aria-pressed", String(i === newsSel)); });
+    if (!st) { ul.innerHTML = '<li class="muted">' + T.cargandoNoticias + "</li>"; foot.textContent = ""; return; }
+    var diag = (st.diag || []).map(function (f) { return f.nombre + " (" + (f.ok ? f.via : T.sinRespuesta) + ")"; }).join(", ");
+    if (!st.items || !st.items.length) { ul.innerHTML = '<li class="status warn">' + T.sinNoticias + "</li>"; foot.textContent = diag ? T.fuentes + diag : ""; return; }
+    st.items.forEach(function (x) {
+      var li = document.createElement("li"), a = document.createElement("a"), meta = document.createElement("span");
+      a.href = x.l; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = x.t;
+      meta.className = "news-meta"; meta.textContent = [x.s, x.d ? ago(x.d) : ""].filter(Boolean).join(" · ");
+      li.appendChild(a); li.appendChild(meta); ul.appendChild(li);
+    });
+    foot.textContent = (st.saved ? tx("noticiasGuardadas", ago(st.t)) : tx("noticiasActualizadas", ago(st.t))) + " " +
+      (P2.nota || T.noticiasFuente) + (diag ? " " + T.fuentes + diag + "." : "");
+  }
+  function loadNews(force) {
+    if (!NEWS || $("news-card").dataset.off) return;
+    NEWS.paises.forEach(function (P2, i) {
+      var key = "noticias:" + i, c = load(key);
+      if (c && c.items && !newsData[i]) newsData[i] = { items: c.items, t: c.t, saved: true, diag: c.diag };
+      if (!force && c && Date.now() - c.t < (NEWS.minutosCache || 30) * 60000) { newsData[i] = { items: c.items, t: c.t, diag: c.diag }; renderNews(); return; }
+      var fuentes = P2.fuentes || [{ nombre: "", rss: P2.rss }];
+      Promise.all(fuentes.map(function (f) {
+        return fetchFeed(f.rss).then(function (r) {
+          r.items.forEach(function (x) { if (f.nombre) x.source = f.nombre; else x.splitSource = true; });
+          return { nombre: f.nombre || "RSS", ok: true, via: r.via, items: r.items };
+        }, function () { return { nombre: f.nombre || "RSS", ok: false, items: [] }; });
+      })).then(function (res) {
+        var diag = res.map(function (r) { return { nombre: r.nombre, ok: r.ok, via: r.via }; });
+        var items = cleanNews([].concat.apply([], res.map(function (r) { return r.items; })));
+        if (items.length) {
+          store(key, { t: Date.now(), items: items, diag: diag });
+          newsData[i] = { items: items, t: Date.now(), diag: diag };
+        } else {
+          newsData[i] = c && c.items ? { items: c.items, t: c.t, saved: true, diag: diag } : { items: [], diag: diag };
+        }
+        renderNews();
+      });
+    });
+    renderNews();
+  }
+  (function () {
+    if (!NEWS || !(NEWS.paises || []).length) return;
+    if ($("news-card").dataset.off) return;
+    $("news-card").hidden = false;
+    NEWS.paises.forEach(function (P2, i) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.textContent = P2.nombre;
+      b.addEventListener("click", function () { newsSel = i; renderNews(); });
+      $("news-tabs").appendChild(b);
+    });
+  })();
+
   /* ---------- Carga y refresco ---------- */
   function loadWeatherAll() {
     loadDetail(); loadUV(); loadRate();
     $("updated").textContent = tx("actualizado", fmtTime(tzMain), cityMain);
   }
   var lastLoad = Date.now();
-  function loadAll() { lastLoad = Date.now(); loadWeatherAll(); renderCalendarToday(); renderDates(); renderLove(); renderExpr(); }
-  $("refresh").addEventListener("click", loadAll);
+  function loadAll(force) { lastLoad = Date.now(); loadWeatherAll(); loadNews(force === true); renderCalendarToday(); renderDates(); renderLove(); renderExpr(); }
+  $("refresh").addEventListener("click", function () { loadAll(true); });
   loadAll();
   showSplash();
 
@@ -1862,6 +2079,7 @@
     timer = setTimeout(close, secs * 1000);
   }
   setInterval(loadWeatherAll, 30 * 60 * 1000);
+  setInterval(function () { loadNews(false); }, 15 * 60 * 1000);
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "visible" && Date.now() - lastLoad > 10 * 60 * 1000) loadAll();
   });

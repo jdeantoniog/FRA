@@ -7,13 +7,14 @@ No está enlazada con las versiones de EE. UU. (no tiene menú de cambio de paí
 ## Orden en pantalla
 
 1. Frase del día en francés (o mensaje especial y aviso de cumpleaños).
-2. Banderas de España y Francia con hora, día y tiempo actual (misma hora en los dos).
+2. Tres banderas: Comunidad de Madrid, playa de Somo (diseño propio) y Francia, cada una con su hora, día y tiempo actual (Madrid, Somo y París) con hora, día y tiempo actual (misma hora en los dos).
 3. Tiempo en Montecarmelo, París y Somo: hoy, hora a hora y 6 días.
 4. Calendario: festivos de España (Madrid, Cantabria y Ribamontán al Mar) y de Francia, calendario escolar de Madrid y de París (zona C), cumpleaños, eventos de París, días señalados de los dos países y de Cantabria, cambios de hora y santoral.
 5. Próximas fechas con cuenta atrás.
 6. Conversor: dólares/euros y medidas de EE. UU. (igual que en las otras versiones).
 7. Sol y aire de los tres lugares.
 8. Expresiones útiles: 2.000 en francés, 20 al día, con repaso y aprendidas. Las aprendidas en francés no se mezclan con las de inglés de las otras versiones.
+9. Noticias políticas de España (El País y El Mundo) y Francia (Le Monde, Le Figaro y franceinfo): 10 titulares por país, mezclados por fecha. Se actualizan cada 30 minutos; sin conexión se ve la última copia. Debajo se indica qué fuentes han respondido.
 
 ## Archivos
 
