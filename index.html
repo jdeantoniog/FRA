@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0e0e10">
+<title>Inicio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f4f4f3;
+    --surface: #ffffff;
+    --ink: #0e0e10;
+    --muted: #5c5c60;
+    --line: #e0e0dd;
+    /* Colores Ogemaw: dorado, gris y negro */
+    --t-max: #c2410c;
+    --t-min: #1d5fc4;
+    --oh-gold: #f4c446;
+    --oh-grey: #4c4c4e;
+    --oh-black: #0e0e10;
+    --oh-on-accent: #f4c446;     /* texto sobre fondo de acento */
+    --oh-accent-bg: #0e0e10;     /* fondo de acento */
+    --es-red: #aa151b;
+    --c-pais: #aa151b;          /* se ajusta desde la bandera del país en config.js */
+    --c-usa: #0a3161;
+    --es-yellow: #f1bf00;
+    --deep-blue: #0a3161;
+    --warn: #b31942;
+    --ok: #1d7a46;
+    --mid: #a76a00;
+    --focus: #0a6cff;
+    --alert-bg: #fff1f2;
+    --cloud: #aab3c5;
+    --sun: #f2a900;
+    --rain: #2f7de1;
+    --snow: #7fa7ff;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #161618;
+      --surface: #232325;
+      --ink: #f2f2f2;
+      --muted: #a3a3a8;
+      --line: #3a3a3d;
+      --oh-on-accent: #0e0e10;
+      --oh-accent-bg: #f4c446;
+      --t-max: #ff9466;
+      --t-min: #7fb2ff;
+      --ok: #4cc283;
+      --mid: #e0a43a;
+      --alert-bg: #3a1a20;
+      --cloud: #8590a6;
+      --c-usa: #2f5fa8;
+    }
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Bricolage Grotesque", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.45;
+    -webkit-text-size-adjust: 100%;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 20px 16px 40px; }
+  h1 { font-size: 1rem; font-weight: 600; color: var(--muted); margin: 0 0 14px; text-align: center; }
+  h2 { font-size: 1.15rem; font-weight: 700; margin: 0 0 12px; padding-left: 10px; border-left: 4px solid var(--oh-gold); line-height: 1.2; }
+  .card {
+    margin-top: 16px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .muted { color: var(--muted); }
+  .small { font-size: 0.85rem; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* ---------- Banderas, relojes y tiempo actual ---------- */
+  .flags { display: grid; grid-template-columns: 1fr auto 1fr; align-items: start; gap: 12px; }
+  .flag-block { text-align: center; min-width: 0; }
+  .flag {
+    display: block; width: 100%; aspect-ratio: 3 / 2; height: auto;
+    border-radius: 6px; box-shadow: 0 0 0 1px var(--line);
+  }
+  .clock {
+    font-size: clamp(2rem, 9vw, 3.6rem); font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1; margin-top: 12px; font-variant-numeric: tabular-nums;
+    display: flex; justify-content: center; align-items: center; gap: 0.18em;
+  }
+  .wx-ico { display: inline-flex; width: 0.8em; height: 0.8em; flex: none; }
+  .wx-ico:empty { display: none; }
+  .wx-ico svg { width: 100%; height: 100%; display: block; }
+  .clock-place { font-weight: 600; margin-top: 4px; }
+  .clock-date { color: var(--muted); font-size: 0.9rem; }
+  .clock-wx {
+    font-size: 0.85rem; font-weight: 600; margin-top: 2px; font-variant-numeric: tabular-nums;
+    line-height: 1.3; min-height: 1.3em;
+  }
+  .gap { align-self: center; color: var(--muted); font-size: 0.85rem; text-align: center; white-space: nowrap; }
+  .gap strong { display: block; color: var(--ink); font-size: 1.1rem; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex: none; }
+  /* ---------- Cambio de versión (menú al tocar la bandera del país) ---------- */
+  .flag-btn { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 6px; position: relative; }
+  .flag-btn .flag-hint { position: absolute; right: 4px; bottom: 4px; width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(0,0,0,0.55); color: #ffffff; font-size: 0.8rem; line-height: 22px; text-align: center; }
+  .ver-menu { margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .ver-menu[hidden] { display: none; }
+  .ver-opt { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-weight: 700; font-size: 0.9rem; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px 6px 6px; cursor: pointer; }
+  .ver-opt svg { width: 30px; height: 20px; border-radius: 3px; box-shadow: 0 0 0 1px var(--line); }
+  .ver-opt[aria-current="true"] { background: var(--oh-accent-bg); color: var(--oh-on-accent); border-color: var(--oh-accent-bg); }
+
+  /* ---------- Conversor: botones en 2 columnas a la izquierda, resultados a la derecha ---------- */
+  .conv { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+  .conv-btns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .conv-btn {
+    font: inherit; font-size: 0.82rem; font-weight: 700; line-height: 1.15; color: var(--ink); background: var(--paper);
+    border: 1px solid var(--line); border-radius: 10px; padding: 9px 4px; cursor: pointer; min-width: 0; overflow-wrap: anywhere;
+  }
+  .conv-btn.main { grid-column: 1 / -1; font-size: 0.95rem; padding: 11px 4px; }
+  .conv-btn:last-child:nth-child(even) { grid-column: 1 / -1; }
+  .conv-btn[aria-pressed="true"] { background: var(--oh-accent-bg); border-color: var(--oh-accent-bg); color: var(--oh-on-accent); }
+  .conv-out { display: grid; gap: 6px; }
+  .field label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 3px; }
+  .box {
+    display: flex; align-items: baseline; border: 1px solid var(--line);
+    border-radius: 10px; padding: 7px 10px; background: var(--paper);
+  }
+  .box:focus-within { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .sym { font-weight: 700; color: var(--muted); margin-right: 6px; white-space: nowrap; }
+  .box input {
+    width: 100%; min-width: 0; border: 0; background: transparent; color: var(--ink);
+    font: inherit; font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; outline: none;
+  }
+  .conv-eq { text-align: center; color: var(--muted); font-weight: 700; line-height: 1; }
+  .rate { margin: 10px 0 0; font-size: 0.8rem; color: var(--muted); }
+  .rate.warn { color: var(--warn); font-weight: 600; }
+  @media (max-width: 520px) { .conv { gap: 8px; } .conv-btn { font-size: 0.75rem; padding: 8px 2px; } .box input { font-size: 1.15rem; } .box { padding: 6px 8px; } }
+
+  /* ---------- Sol y aire ---------- */
+  .uv-bar { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 3px; }
+  .uv-cell { text-align: center; font-variant-numeric: tabular-nums; }
+  .uv-val { display: block; border-radius: 6px; padding: 8px 0; font-weight: 800; font-size: 1.05rem; color: #ffffff; }
+  .uv-cell.now .uv-val { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .uv-hour { display: block; font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+  .uv-cell.now .uv-hour { color: var(--ink); font-weight: 700; }
+  .uv0 { background: #3ea72d; } .uv1 { background: #e8c100; color: #1b2233 !important; }
+  .uv2 { background: #f18b00; } .uv3 { background: #e53210; } .uv4 { background: #8e4ab1; }
+  .uv-note { margin: 8px 0 0; }
+  .uv-place + .uv-place { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .uv-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .uv-head strong { font-size: 1rem; }
+  .aq { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.85rem; }
+  .aq.a0 .dot { background: #3ea72d; } .aq.a1 .dot { background: #e8c100; } .aq.a2 .dot { background: #f18b00; }
+  .aq.a3 .dot { background: #e53210; } .aq.a4 .dot { background: #8e4ab1; } .aq.a5 .dot { background: #7e0023; }
+
+  .chip {
+    font: inherit; font-weight: 600; color: var(--ink); background: var(--paper);
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+  }
+
+  /* ---------- Previsión: bloques de temperatura ---------- */
+  .tr { display: flex; align-items: baseline; justify-content: center; gap: 5px; border-radius: 8px; padding: 4px 6px; background: var(--paper); font-variant-numeric: tabular-nums; }
+  .tr i { font-style: normal; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); }
+  .tr b { font-size: 1.15rem; font-weight: 800; line-height: 1.1; }
+  .tmax b { color: var(--t-max); }
+  .tmin b { color: var(--t-min); }
+  .status { font-size: 0.85rem; color: var(--muted); padding: 8px 0; }
+  .status.warn { color: var(--warn); }
+
+  /* ---------- Previsión detallada ---------- */
+  .days { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .day { border: 1px solid var(--line); border-radius: 10px; padding: 10px; min-width: 0; overflow-wrap: anywhere; }
+  .day-name { font-weight: 700; }
+  .day-temp { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin: 6px 0; }
+  .day-temp .tr { flex-direction: column; align-items: center; gap: 0; padding: 4px 2px; min-width: 0; }
+  .day p { margin: 2px 0; font-size: 0.82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .day p.snow { color: var(--deep-blue); font-weight: 700; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .day p.snow { color: #8fb4ff; } }
+  .day-head { display: flex; justify-content: space-between; align-items: center; gap: 4px; }
+  .day-head { flex-wrap: wrap; row-gap: 2px; }
+  .day-name { overflow-wrap: normal; white-space: nowrap; }
+  .day-ico { width: 28px; height: 28px; flex: none; }
+  .day-ico svg { width: 100%; height: 100%; display: block; }
+  .details .card:first-child { margin-top: 16px; }
+
+  /* ---------- Tiempo: hoy y hora a hora ---------- */
+  .today-main { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .today-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .today-name { font-weight: 800; font-size: 1.25rem; }
+  .today-ico { width: 34px; height: 34px; flex: none; }
+  .today-ico svg, .h-i svg { width: 100%; height: 100%; display: block; }
+  .today-desc { color: var(--muted); font-size: 0.9rem; }
+  .today-range { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; min-width: 150px; flex: none; }
+  .today-meta { margin: 8px 0 0; font-size: 0.82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .today-meta strong { color: var(--ink); }
+  .stale { color: var(--mid); font-weight: 700; }
+  .hours {
+    position: relative; display: flex; gap: 4px; overflow-x: auto; margin: 12px 0 0; padding-bottom: 6px;
+    scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: thin;
+  }
+  .hour { flex: 0 0 50px; text-align: center; border-radius: 10px; background: var(--paper); padding: 6px 2px; font-variant-numeric: tabular-nums; scroll-snap-align: start; }
+  .hour.past { opacity: 0.45; }
+  .hour.now { background: var(--oh-accent-bg); color: var(--oh-on-accent); }
+  .h-t { display: block; font-size: 0.72rem; color: var(--muted); }
+  .h-i { display: block; width: 26px; height: 26px; margin: 2px auto; }
+  .h-v { display: block; font-weight: 800; }
+  .h-r { display: block; font-size: 0.68rem; color: var(--rain); min-height: 1.1em; }
+  .hour.now .h-t, .hour.now .h-r { color: inherit; }
+  .sub { font-size: 0.95rem; font-weight: 700; margin: 16px 0 8px; }
+  @media (max-width: 520px) { .today-range { min-width: 128px; } .today-name { font-size: 1.1rem; } }
+
+  /* ---------- Calendario ---------- */
+  .cal-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+  .cal-month { font-weight: 800; font-size: 1.1rem; text-align: center; flex: 1; }
+  .cal-month button { font: inherit; font-size: 0.75rem; font-weight: 700; margin-left: 8px; vertical-align: 2px; }
+  .cal-btn {
+    width: 40px; height: 40px; flex: none; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--paper); color: var(--ink); display: grid; place-items: center; cursor: pointer; padding: 0;
+  }
+  .cal-btn svg { width: 18px; height: 18px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-dow { text-align: center; font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; padding: 2px 0 4px; }
+  .cal-day {
+    min-height: 46px; border: 0; border-radius: 10px; background: var(--paper); color: var(--ink);
+    font: inherit; font-weight: 600; cursor: pointer; padding: 6px 0 5px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-variant-numeric: tabular-nums;
+  }
+  .cal-day.empty { visibility: hidden; }
+  .cal-day.sun { color: var(--c-pais); }
+  .cal-day.fest-p { background: var(--c-pais); color: #ffffff; }
+  .cal-day.fest-u { background: var(--c-usa); color: #ffffff; }
+  .cal-day.fest-p.fest-u { background: linear-gradient(135deg, var(--c-pais) 50%, var(--c-usa) 50%); }
+  .cal-day.prov-p { box-shadow: inset 0 0 0 2px var(--c-pais); }
+  .cal-day.prov-u { box-shadow: inset 0 0 0 2px var(--c-usa); }
+  .cal-day.prov-p.prov-u { box-shadow: inset 0 0 0 2px var(--c-usa), inset 0 0 0 4px var(--c-pais); }
+  .cal-day.today { box-shadow: inset 0 0 0 2px var(--ink); }
+  .cal-day.fest-p.today, .cal-day.fest-u.today { box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 4px #ffffff; }
+  .cal-day[aria-pressed="true"] { outline: 3px solid var(--focus); outline-offset: 1px; }
+  .cal-dots { display: flex; gap: 3px; height: 6px; }
+  .cal-dots i { width: 6px; height: 6px; border-radius: 50%; display: block; }
+  .d-fam { background: var(--ok); }
+  .d-sen { background: var(--oh-gold); }
+  .d-evt { background: #3c6fd1; }
+  .d-esc { background: #8e4ab1; }
+  .tag.Esc { background: #8e4ab1; }
+  .cal-warn { margin: 0 0 10px; padding: 8px 10px; border-radius: 8px; background: var(--alert-bg); color: var(--ink); font-size: 0.82rem; border-left: 4px solid var(--warn); }
+  .cal-status { margin: 6px 0 0; font-size: 0.72rem; color: var(--muted); }
+  .cal-status:empty { display: none; }
+  .cal-day.fest-p .d-fam, .cal-day.fest-u .d-fam { background: #ffffff; }
+  .cal-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 10px 0 0; font-size: 0.78rem; color: var(--muted); }
+  .cal-legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .sw.fest-p { background: var(--c-pais); }
+  .sw.fest-u { background: var(--c-usa); }
+  .sw.prov { box-shadow: inset 0 0 0 2px var(--muted); }
+  .sw.dot { border-radius: 50%; width: 8px; height: 8px; }
+  .cal-detail { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+  .cal-date { font-weight: 800; margin: 0 0 6px; }
+  .cal-date::first-letter { text-transform: uppercase; }
+  .cal-marks { list-style: none; margin: 0; padding: 0; }
+  .cal-marks li { display: flex; align-items: baseline; gap: 8px; padding: 4px 0; }
+  .cal-marks .meta { display: block; font-size: 0.78rem; color: var(--muted); }
+  .cal-none { margin: 0; color: var(--muted); font-size: 0.9rem; }
+  .cal-santo { margin: 8px 0 0; font-size: 0.9rem; }
+  .cal-santo b { font-weight: 700; }
+  @media (max-width: 520px) { .cal-grid { gap: 3px; } .cal-day { min-height: 40px; font-size: 0.92rem; } }
+
+  /* ---------- Aviso a pantalla completa ---------- */
+  .splash {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    padding: calc(24px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px));
+    background:
+      linear-gradient(180deg, var(--oh-gold) 0 8px, var(--oh-black) 8px 12px, transparent 12px),
+      linear-gradient(0deg, var(--oh-gold) 0 8px, var(--oh-black) 8px 12px, transparent 12px),
+      var(--paper);
+    cursor: pointer;
+    opacity: 1; transition: opacity 0.6s ease;
+  }
+  .splash[hidden] { display: none; }
+  .splash.closing { opacity: 0; }
+  .splash-inner { position: relative; max-width: 640px; text-align: center; animation: splash-in 0.7s ease both; }
+  .confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .splash-text {
+    margin: 0; font-size: clamp(2rem, 9vw, 3.6rem); font-weight: 800;
+    line-height: 1.12; letter-spacing: -0.02em; color: var(--ink);
+  }
+  .splash-hint { margin: 22px 0 0; font-size: 0.85rem; color: var(--muted); }
+  .splash-bar {
+    position: absolute; left: 24px; right: 24px; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+    height: 4px; border-radius: 2px; background: var(--line); overflow: hidden;
+  }
+  .splash-bar span { display: block; height: 100%; width: 100%; background: var(--oh-gold); transform-origin: left; }
+  @keyframes splash-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .splash, .splash-inner { animation: none; transition: none; }
+  }
+  body.splash-open { overflow: hidden; }
+
+  /* ---------- Frase del día ---------- */
+  .love { margin: 0 0 14px; text-align: center; font-size: 0.8rem; color: var(--muted); font-style: italic; line-height: 1.35; }
+  .love-es { display: block; }
+  .love-es:empty { display: none; }
+  .love.special #love-en { font-style: normal; font-weight: 700; font-size: 0.9rem; color: var(--ink); }
+  .love-pre { display: block; font-style: normal; font-weight: 600; color: var(--c-pais); margin-top: 4px; }
+  .love-pre:empty { display: none; }
+
+  /* ---------- Expresiones útiles: 2 columnas x 6 ---------- */
+  .xlist {
+    list-style: none; margin: 0; padding: 0; display: grid;
+    grid-template-columns: 1fr 1fr; grid-template-rows: repeat(6, auto); grid-auto-flow: column; gap: 0 14px;
+  }
+  .xlist li { padding: 5px 0; border-top: 1px solid var(--line); min-width: 0; line-height: 1.25; }
+  .xlist li.col-top { border-top: 0; }
+  .x-en { display: block; font-weight: 700; font-size: 0.92rem; }
+  .x-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .x-head h2 { margin: 0; }
+  .chip[aria-pressed="true"] { background: var(--oh-accent-bg); border-color: var(--oh-accent-bg); color: var(--oh-on-accent); }
+  .xlist li { position: relative; padding-right: 26px; }
+  .x-chk { position: absolute; right: 0; top: 5px; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line); background: transparent; color: transparent; font: inherit; font-size: 0.75rem; line-height: 1; cursor: pointer; padding: 0; }
+  .xlist li.learned .x-chk { background: var(--ok); border-color: var(--ok); color: #ffffff; }
+  .xlist li.learned .x-en { color: var(--muted); text-decoration: line-through; }
+  .repaso .x-es { color: transparent; background: var(--paper); border-radius: 4px; cursor: pointer; user-select: none; }
+  .repaso .x-es::after { content: var(--toca-ver, "toca para ver"); color: var(--muted); font-size: 0.72rem; position: absolute; left: 0; bottom: 5px; }
+  .repaso li:not(.show) .x-es { white-space: nowrap; overflow: hidden; height: 1.15em; }
+  .repaso li.show .x-es { color: var(--muted); background: transparent; }
+  .repaso li.show .x-es::after { content: none; }
+  .repaso li { cursor: pointer; }
+  .x-foot { margin: 10px 0 0; }
+  .linkbtn { font: inherit; color: var(--focus); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+  .x-es { display: block; color: var(--muted); font-size: 0.8rem; }
+  @media (max-width: 520px) { .xlist { gap: 0 10px; } .x-en { font-size: 0.85rem; } .x-es { font-size: 0.75rem; } }
+
+
+  /* ---------- Fechas (estilos) ---------- */
+  .tag { font-size: 0.75rem; font-weight: 700; border-radius: 6px; padding: 2px 7px; color: #ffffff; min-width: 2.6em; text-align: center; }
+  .tag.Fest { background: var(--c-pais); }
+  .tag.FestU { background: var(--c-usa); }
+  .tag.Dia { background: var(--muted); }
+  .tag.Fam { background: var(--ok); }
+  .tag.Evt { background: #3c6fd1; }
+  .dlist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: column; gap: 0 14px; }
+  .dlist li { display: flex; gap: 8px; align-items: flex-start; padding: 6px 0; border-top: 1px solid var(--line); min-width: 0; }
+  .dlist li.col-top { border-top: 0; }
+  .dlist .tag { margin-top: 1px; flex: none; }
+  .d-txt { min-width: 0; line-height: 1.25; }
+  .d-name { display: block; font-weight: 600; font-size: 0.9rem; overflow-wrap: anywhere; }
+  .d-cd { display: block; font-size: 0.75rem; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .d-cd.today { color: var(--c-pais); font-weight: 800; }
+  .d-when { display: block; font-size: 0.75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  @media (max-width: 520px) { .dlist { gap: 0 10px; } .d-name { font-size: 0.82rem; } .dlist .tag { font-size: 0.66rem; padding: 2px 5px; min-width: 0; } }
+
+  footer { margin-top: 24px; text-align: center; font-size: 0.8rem; color: var(--muted); }
+  footer button {
+    font: inherit; font-weight: 700; color: var(--oh-on-accent); background: var(--oh-accent-bg);
+    border: 1px solid var(--oh-accent-bg); border-radius: 8px; padding: 8px 16px; cursor: pointer;
+  }
+  button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  @media (max-width: 520px) {
+    main { padding: 14px 10px 32px; }
+    .clock-date { font-size: 0.8rem; }
+    .card { padding: 14px 12px; }
+    .flags { gap: 8px; }
+    .gap { font-size: 0.75rem; }
+    .clock-wx { font-size: 0.78rem; }
+    .days { gap: 5px; }
+    .day { padding: 6px; }
+    .day-name { font-size: 0.85rem; }
+    .day-ico { width: 22px; height: 22px; }
+    .day p { font-size: 0.74rem; }
+    .day-temp .tr i { font-size: 0.62rem; }
+    .day-temp .tr b { font-size: 1.05rem; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <!-- 1. Frase del día (o mensaje especial y aviso de próximos cumpleaños) -->
+  <p class="love" id="love" hidden><span id="love-en"></span><span class="love-es" id="love-es"></span><span class="love-pre" id="love-pre"></span></p>
+
+  <!-- 2. Banderas: país (izquierda) y EE. UU. (derecha). Debajo, hora, lugar, día y tiempo actual -->
+  <section id="hora-local" aria-label="Hora local">
+    <div class="flags">
+      <div class="flag-block">
+        <button type="button" class="flag-btn" id="flag-p-btn" aria-expanded="false" aria-controls="ver-menu" disabled><svg class="flag" id="flag-p" viewBox="0 0 750 500" role="img"></svg></button>
+        <div class="clock"><span class="wx-ico" id="ico-p" aria-hidden="true"></span><span id="clock-p">--:--</span></div>
+        <div class="clock-place" id="place-p"></div>
+        <div class="clock-date" id="date-p"></div>
+        <div class="clock-wx" id="wx-p"></div>
+      </div>
+      <div class="gap" id="gap"></div>
+      <div class="flag-block">
+        <svg class="flag" id="flag-u" viewBox="0 0 750 500" role="img"></svg>
+        <div class="clock"><span class="wx-ico" id="ico-u" aria-hidden="true"></span><span id="clock-u">--:--</span></div>
+        <div class="clock-place" id="place-u"></div>
+        <div class="clock-date" id="date-u"></div>
+        <div class="clock-wx" id="wx-u"></div>
+      </div>
+    </div>
+    <div class="ver-menu" id="ver-menu" hidden></div>
+  </section>
+
+  <!-- 3. Tiempo: una tarjeta por lugar, en el orden de "ordenTiempo" en config.js -->
+  <div id="details"></div>
+
+  <!-- 4. Calendario -->
+  <section class="card" id="cal-card" aria-labelledby="cal-title">
+    <h2 id="cal-title">Calendario</h2>
+    <div class="cal-nav">
+      <button type="button" class="cal-btn" id="cal-prev" aria-label="Mes anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="cal-month"><span id="cal-month" aria-live="polite"></span><button type="button" class="chip" id="cal-today" hidden>Hoy</button></div>
+      <button type="button" class="cal-btn" id="cal-next" aria-label="Mes siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <p class="cal-warn" id="cal-warn" hidden></p>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="cal-legend" aria-hidden="true">
+      <span><i class="sw fest-p"></i><span id="leg-p">Festivo</span></span>
+      <span><i class="sw fest-u"></i><span id="leg-u">Festivo EE. UU.</span></span>
+      <span><i class="sw prov"></i><span id="leg-prev">Festivo previsto</span></span>
+      <span><i class="sw dot d-fam"></i><span id="leg-fam">Familia</span></span>
+      <span><i class="sw dot d-sen"></i><span id="leg-sen">Día señalado</span></span>
+      <span><i class="sw dot d-esc"></i><span id="leg-esc">Escolar</span></span>
+      <span><i class="sw dot d-evt"></i><span id="leg-evt">Evento</span></span>
+    </div>
+    <p class="cal-status" id="cal-status"></p>
+    <div class="cal-detail" id="cal-detail" aria-live="polite"></div>
+  </section>
+
+  <!-- 5. Próximas fechas con cuenta atrás (misma fuente que el calendario) -->
+  <section class="card" id="dates-card" aria-labelledby="dates-title">
+    <h2 id="dates-title">Próximas fechas</h2>
+    <ul class="dlist" id="dates"></ul>
+  </section>
+
+  <!-- Conversor: dólares y moneda del país (principal) + unidades -->
+  <section class="card" id="conv-card" aria-labelledby="conv-title">
+    <h2 id="conv-title">Conversor</h2>
+    <div class="conv">
+      <div class="conv-btns" id="conv-btns" role="group" aria-label="Qué convertir"></div>
+      <div class="conv-out">
+        <div class="field">
+          <label for="conv-a" id="conv-a-label"></label>
+          <div class="box"><span class="sym" id="conv-a-sym"></span><input id="conv-a" inputmode="decimal" autocomplete="off" value="20"></div>
+        </div>
+        <div class="conv-eq" aria-hidden="true">=</div>
+        <div class="field">
+          <label for="conv-b" id="conv-b-label"></label>
+          <div class="box"><span class="sym" id="conv-b-sym"></span><input id="conv-b" inputmode="decimal" autocomplete="off"></div>
+        </div>
+      </div>
+    </div>
+    <p class="rate" id="conv-note"></p>
+  </section>
+
+  <!-- Sol y aire: índice UV por hora y calidad del aire, un bloque por lugar del tiempo -->
+  <section class="card" id="uv-card" aria-labelledby="uv-title">
+    <h2 id="uv-title">Sol y aire</h2>
+    <div id="uv-wrap"></div>
+  </section>
+
+  <!-- Expresiones útiles -->
+  <section class="card" id="expr-card" aria-labelledby="expr-title" hidden>
+    <div class="x-head">
+      <h2 id="expr-title">Expresiones útiles</h2>
+      <button type="button" class="chip" id="expr-mode" aria-pressed="false">Repaso</button>
+    </div>
+    <ul class="xlist" id="expr-list"></ul>
+    <p class="x-foot small muted"><span id="expr-count"></span> <button type="button" class="linkbtn" id="expr-reset" hidden>Reiniciar aprendidas</button></p>
+  </section>
+
+  <footer>
+    <p id="updated"></p>
+    <button type="button" id="refresh">Actualizar ahora</button>
+  </footer>
+</main>
+
+<!-- Aviso a pantalla completa en fechas clave -->
+<div class="splash" id="splash" role="alert" hidden>
+  <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+  <div class="splash-inner">
+    <p class="splash-text" id="splash-text"></p>
+    <p class="splash-hint" id="splash-hint">Toca para cerrar</p>
+  </div>
+  <div class="splash-bar" aria-hidden="true"><span id="splash-bar"></span></div>
+</div>
+
+<script src="idioma.js"></script>
+<script src="config.js"></script>
+<script src="cumples.js"></script>
+<script src="palabras.js"></script>
+<script src="santoral.js"></script>
+<script>
+
+(function () {
+  "use strict";
+
+  /* ---------- Textos: español por defecto; idioma.js (window.TEXTOS) los sustituye ---------- */
+  var T = {"locale": "es-ES",
+    "errConfig": "No se ha podido leer config.js. Revisa comas y comillas en ese archivo.",
+    "horaLocal": "Hora local",
+    "cambiarVersion": "Cambiar de país",
+    "bandera": "Bandera de {0}",
+    "calendario": "Calendario",
+    "mesAnt": "Mes anterior",
+    "mesSig": "Mes siguiente",
+    "hoy": "Hoy",
+    "manana": "Mañana",
+    "festivoDe": "Festivo {0}",
+    "legPrev": "Festivo previsto",
+    "familia": "Familia",
+    "diaSenalado": "Día señalado",
+    "evento": "Evento",
+    "escolar": "Escolar",
+    "proximas": "Próximas fechas",
+    "expresiones": "Expresiones útiles",
+    "repaso": "Repaso",
+    "reiniciar": "Reiniciar aprendidas",
+    "actualizar": "Actualizar ahora",
+    "actualizado": "Actualizado a las {0} ({1})",
+    "tocaCerrar": "Toca para cerrar",
+    "conversor": "Conversor",
+    "queConvertir": "Qué convertir",
+    "solAire": "Sol y aire",
+    "deDiferencia": "de diferencia",
+    "mismaHora": "misma hora",
+    "sinConexion": "Sin conexión",
+    "sinDatos": "Sin datos",
+    "horaEn": "{0} en {1}",
+    "horaEnPais": "{0} en {1}",
+    "haceMin": "hace {0} min",
+    "haceH": "hace {0} h",
+    "haceDias": "hace {0} días",
+    "wmo": {"0": "Despejado",
+    "1": "Casi despejado",
+    "2": "Parcialmente nuboso",
+    "3": "Cubierto",
+    "45": "Niebla",
+    "48": "Niebla con escarcha",
+    "51": "Llovizna débil",
+    "53": "Llovizna",
+    "55": "Llovizna intensa",
+    "56": "Llovizna helada",
+    "57": "Llovizna helada intensa",
+    "61": "Lluvia débil",
+    "63": "Lluvia",
+    "65": "Lluvia intensa",
+    "66": "Lluvia helada",
+    "67": "Lluvia helada intensa",
+    "71": "Nieve débil",
+    "73": "Nieve",
+    "75": "Nieve intensa",
+    "77": "Granos de nieve",
+    "80": "Chubascos débiles",
+    "81": "Chubascos",
+    "82": "Chubascos fuertes",
+    "85": "Chubascos de nieve",
+    "86": "Chubascos de nieve fuertes",
+    "95": "Tormenta",
+    "96": "Tormenta con granizo",
+    "99": "Tormenta con granizo fuerte"}, "max": "Máx",
+    "min": "Mín",
+    "ahora": "Ahora",
+    "sensacion": "sensación",
+    "lluvia": "lluvia",
+    "lluviaDia": "Lluvia",
+    "amanece": "amanece",
+    "anochece": "anochece",
+    "deLuz": "{0} h {1} min de luz",
+    "sensMin": "Sens. mín",
+    "sinNieve": "Sin nieve",
+    "nieve": "Nieve",
+    "tiempoEn": "Tiempo en {0}",
+    "cargandoTiempo": "Cargando el tiempo…",
+    "horaAHora": "Hoy hora a hora",
+    "proximosDias": "Próximos días",
+    "prevGuardada": "Sin conexión: previsión guardada {0}",
+    "errTiempo": "No se ha podido cargar el tiempo y no hay una previsión guardada. Pulsa Actualizar ahora.",
+    "meses": ["enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "septiembre",
+    "octubre",
+    "noviembre",
+    "diciembre"], "iniciales": ["L",
+    "M",
+    "X",
+    "J",
+    "V",
+    "S",
+    "D"], "diaDe": "{0} de {1}",
+    "esHoyAria": ", hoy",
+    "tagFest": "Fest",
+    "tagFam": "Fam",
+    "tagEvt": "Evt",
+    "tagEsc": "Cole",
+    "tagDia": "Día",
+    "rango": "del {0} al {1}",
+    "fechaConfirmar": "fecha por confirmar",
+    "datoOnline": "dato online",
+    "porConfirmar": "por confirmar",
+    "horaConfirmar": "hora por confirmar",
+    "fuenteOnline": " · fuente online (Nager.Date)",
+    "pendConfirmar": ", pendiente de confirmar",
+    "pendConfirmarCon": ", pendiente de confirmar con {0}",
+    "previsto": " · previsto, sin calendario oficial cargado",
+    "pendAprob": " · pendiente de aprobación",
+    "calEscolar": "Calendario escolar",
+    "nadaMarcado": "Nada marcado para este día.",
+    "santoral": "Santoral:",
+    "warnFestivos": "Faltan los festivos oficiales de {0} de {1} en config.js.",
+    "warnFestivosSig": "Ya suele estar publicado el calendario laboral de {0} ({1}): añádelo a config.js.",
+    "warnEscolar": "Falta el calendario escolar{0} del curso siguiente en config.js.",
+    "deX": " de {0}",
+    "warnEventos": "No quedan eventos futuros en config.js.",
+    "warnPartidos": "No quedan partidos de {0}: añade el calendario de la nueva temporada a config.js.",
+    "stPartidos": "Partidos online {0}",
+    "stPartidosCopia": "Sin conexión con la fuente de partidos: se usa la copia de {0}",
+    "stPartidosConfig": "Sin conexión con la fuente de partidos: se usan los de config.js",
+    "stFestivos": "Festivos de {0} {1} online",
+    "stSinFestivos": "Sin conexión con la fuente de festivos de {0} {1}",
+    "cambioAdelanta": "Cambio de hora en {0}: se adelanta una hora",
+    "cambioRetrasa": "Cambio de hora en {0}: se retrasa una hora",
+    "desdeHoyDif": "desde hoy, {0} h de diferencia",
+    "desdeHoyMisma": "desde hoy, misma hora",
+    "yConj": " y ",
+    "noFechas": "No hay fechas próximas.",
+    "porConfirmarParen": " (por confirmar)",
+    "esHoy": "¡Es hoy!",
+    "enCurso": "En curso",
+    "mes": "mes",
+    "mesesN": "meses",
+    "dia": "día",
+    "dias": "días",
+    "recuerda": "Recuerda. ",
+    "enNDias": "En {0} días",
+    "felicita": "¡Felicita a {0}!",
+    "cumpleDe": "Cumpleaños de {0}",
+    "aprendidasDe": "Aprendidas: {0} de {1}.",
+    "marcaCirculo": "Marca con el círculo las que ya sepas: dejarán de salir.",
+    "marcarAprendida": "Marcar como aprendida",
+    "aprendidasManana": "Aprendidas: {0}. Desde mañana ya no saldrán.",
+    "confirmReiniciar": "¿Volver a incluir todas las expresiones marcadas como aprendidas?",
+    "tocaVer": "toca para ver",
+    "dolares": "Dólares",
+    "millas": "Millas",
+    "kilometros": "Kilómetros",
+    "fahrenheit": "Fahrenheit",
+    "celsius": "Celsius",
+    "libras": "Libras",
+    "kilos": "Kilos",
+    "onzas": "Onzas",
+    "gramos": "Gramos",
+    "pulgadas": "Pulgadas",
+    "centimetros": "Centímetros",
+    "mph": "Millas por hora",
+    "kmh": "Km por hora",
+    "bMillas": "Millas / km",
+    "bYardas": "Yardas / m",
+    "bTazas": "Tazas / ml",
+    "tazas": "Tazas",
+    "mililitros": "Mililitros",
+    "notaTaza": "Taza de cocina de EE. UU. En las etiquetas nutricionales se redondea a 240 ml.",
+    "bGalones": "Galones / litros",
+    "galones": "Galones",
+    "litros": "Litros",
+    "notaGalon": "Galón de EE. UU. (gasolina, leche). El galón británico son 4,55 litros.",
+    "yardas": "Yardas",
+    "metros": "Metros",
+    "bLibras": "Libras / kilos",
+    "bOnzas": "Onzas / gramos",
+    "bPulgadas": "Pulgadas / cm",
+    "notaOnza": "Onza de peso. La onza líquida (fl oz) son 29,57 ml.",
+    "cargandoCambio": "Cargando tipo de cambio…",
+    "bce": "tipo de referencia del BCE",
+    "tasaGuardada": "sin conexión: tasa guardada {0}",
+    "tasaManual": "sin conexión: tasa manual de config.js, revísala",
+    "sinCambio": "Sin tipo de cambio: no hay conexión.",
+    "uvTxt": ["bajo",
+    "moderado",
+    "alto",
+    "muy alto",
+    "extremo"], "aqTxt": ["Buena",
+    "Moderada",
+    "Mala para personas sensibles",
+    "Mala",
+    "Muy mala",
+    "Peligrosa"], "cargandoAire": "Cargando aire…",
+    "cargandoUV": "Cargando índice UV…",
+    "errUV": "No se ha podido cargar el índice UV.",
+    "aire": "Aire {0} · {1}",
+    "aireSinDatos": "Aire: sin datos",
+    "uvMax": "UV máximo {0} ({1}) hacia las {2} h. ",
+    "protSi": "Protección solar en las horas amarillas o superiores.",
+    "protNo": "No hace falta protección solar especial.",
+    "datosGuardados": "Sin conexión: datos guardados {0}. ",
+    "uvAria": "Índice UV por hora en {0}"};
+  (function () { var X = window.TEXTOS || {}; for (var k in X) T[k] = X[k]; })();
+  // T.x con {0}, {1}… sustituidos
+  function tx(key) { var a = arguments; return String(T[key]).replace(/\{(\d)\}/g, function (m, i) { return a[+i + 1]; }); }
+  var LOC = T.locale, LANG = LOC.slice(0, 2);
+  var LEARN = (window.CONFIG && window.CONFIG.idiomaAprender) || "en";      // idioma de frases y expresiones
+  function learnTxt(w) { return w[LEARN] != null ? w[LEARN] : w.en; }
+  var LEARNED_KEY = "aprendidas" + (LEARN === "en" ? "" : ":" + LEARN);
+  document.documentElement.lang = LANG;
+
+  var CFG = window.CONFIG;
+  if (!CFG || !CFG.usa || !CFG.pais) {
+    document.body.insertAdjacentHTML("afterbegin", "<p style='padding:16px'>" + T.errConfig + "</p>");
+    return;
+  }
+
+  // Textos fijos del HTML
+  [["cal-title", "calendario"], ["cal-today", "hoy"], ["dates-title", "proximas"], ["expr-title", "expresiones"], ["expr-mode", "repaso"],
+   ["expr-reset", "reiniciar"], ["refresh", "actualizar"], ["conv-title", "conversor"], ["uv-title", "solAire"], ["splash-hint", "tocaCerrar"],
+   ["leg-prev", "legPrev"], ["leg-fam", "familia"], ["leg-sen", "diaSenalado"], ["leg-evt", "evento"]].forEach(function (x) {
+    var el = document.getElementById(x[0]); if (el) el.textContent = T[x[1]];
+  });
+  [["cal-prev", "mesAnt"], ["cal-next", "mesSig"], ["conv-btns", "queConvertir"], ["hora-local", "horaLocal"]].forEach(function (x) {
+    var el = document.getElementById(x[0]); if (el) el.setAttribute("aria-label", T[x[1]]);
+  });
+  document.documentElement.style.setProperty("--toca-ver", JSON.stringify(T.tocaVer));
+  function $(id) { return document.getElementById(id); }
+
+  var U = CFG.usa, P = CFG.pais;
+  var tzU = U.zonaHoraria, tzP = P.zonaHoraria;
+  var mainIsPais = CFG.zonaPrincipal === "pais";
+  var tzMain = mainIsPais ? tzP : tzU, cityMain = mainIsPais ? P.ciudadReloj : U.ciudadReloj;
+  function countryName(which) { return which === "usa" ? (U.nombreCorto || "EE. UU.") : (P.nombreCorto || P.nombre); }
+
+  // Cumpleaños de cumples.js: se convierten en mensajes especiales (calendario, próximas fechas, aviso y confeti).
+  // Por defecto zona "ambas": se ven desde que empieza el día en el país hasta que acaba en EE. UU.
+  CFG.mensajesEspeciales = (CFG.mensajesEspeciales || []).concat((window.CUMPLES || []).filter(function (c) {
+    return c && /^\d\d-\d\d$/.test(c[0]) && c[1];
+  }).map(function (c) {
+    var o = c[2] || {};
+    return { fecha: c[0], texto: o.texto || tx("felicita", c[1]), lista: o.lista || tx("cumpleDe", c[1]),
+             avisar: o.avisar !== false, confeti: o.confeti !== false, zona: o.zona || "ambas" };
+  }));
+
+  document.title = CFG.titulo || "Inicio";
+
+  // Orden de las secciones debajo del tiempo (config.js > ordenSecciones)
+  (function () {
+    var IDS = { calendario: "cal-card", proximasFechas: "dates-card", conversor: "conv-card", solAire: "uv-card", expresiones: "expr-card" };
+    var foot = document.querySelector("footer");
+    (CFG.ordenSecciones || []).forEach(function (k) { var el = IDS[k] && $(IDS[k]); if (el) foot.parentNode.insertBefore(el, foot); });
+    // Las que no estén en la lista se ocultan
+    if (CFG.ordenSecciones) Object.keys(IDS).forEach(function (k) {
+      if (CFG.ordenSecciones.indexOf(k) === -1 && $(IDS[k])) { $(IDS[k]).hidden = true; $(IDS[k]).dataset.off = "1"; }
+    });
+  })();
+
+  /* ---------- Almacenamiento en el navegador ----------
+     Todas las páginas de GitHub Pages de un mismo usuario comparten navegador (mismo dominio).
+     La caché lleva el identificador de la versión para que la de EE. UU.-España no pise a la de EE. UU.-Italia.
+     Las expresiones aprendidas y el modo repaso se comparten entre versiones. */
+  var STORE = "inicio:" + (CFG.version || "base") + ":v1:", SHARED = "inicio:v1:";
+  function store(key, val, shared) { try { localStorage.setItem((shared ? SHARED : STORE) + key, JSON.stringify(val)); } catch (e) {} }
+  function load(key, shared) { try { var v = localStorage.getItem((shared ? SHARED : STORE) + key); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+  function ago(t) {
+    var m = Math.round((Date.now() - t) / 60000);
+    return m < 60 ? tx("haceMin", Math.max(1, m)) : m < 2880 ? tx("haceH", Math.round(m / 60)) : tx("haceDias", Math.round(m / 1440));
+  }
+
+  var nf1 = new Intl.NumberFormat(LOC, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+  /* ---------- Utilidades de hora local ---------- */
+  var FMTS = {};
+  function localParts(tz, d) {
+    var f = FMTS[tz] || (FMTS[tz] = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit"
+    }));
+    var p = {};
+    f.formatToParts(d || new Date()).forEach(function (x) { p[x.type] = x.value; });
+    if (p.hour === "24") p.hour = "00";
+    return p;
+  }
+  // Minutos de diferencia de una zona con UTC en un instante
+  function offsetMinutes(tz, d) {
+    d = d || new Date();
+    var p = localParts(tz, d), base = Math.floor(d.getTime() / 60000) * 60000;
+    return Math.round((Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute) - base) / 60000);
+  }
+  // Instante absoluto de una fecha y hora expresadas en una zona horaria
+  function zonedTime(tz, y, m, d, h, mi) {
+    var want = Date.UTC(y, m - 1, d, h || 0, mi || 0), guess = want;
+    for (var i = 0; i < 3; i++) guess = want - offsetMinutes(tz, new Date(guess)) * 60000;
+    return guess;
+  }
+  function midnightIn(tz, y, m, d) { return zonedTime(tz, y, m, d, 0, 0); }
+  function todayIn(tz) { var p = localParts(tz); return [+p.year, +p.month, +p.day]; }
+  function todayYMD() { return todayIn(tzMain); }
+
+  function fmtTime(tz, d) {
+    return new Intl.DateTimeFormat(LOC, { hour: "2-digit", minute: "2-digit", timeZone: tz }).format(d || new Date());
+  }
+  function fmtDate(tz) {
+    return new Intl.DateTimeFormat(LOC, { weekday: "long", day: "numeric", month: "short", timeZone: tz }).format(new Date());
+  }
+  // "13:00 en West Branch · 19:00 en España"
+  function bothTimes(dt) {
+    return tx("horaEn", fmtTime(tzU, dt), U.ciudadReloj) + " · " + tx("horaEnPais", fmtTime(tzP, dt), countryName("pais"));
+  }
+
+  /* ---------- Banderas (3:2, dibujadas sin dependencias) ---------- */
+  var FLAGS = {
+    ES: { color: "#aa151b", confeti: ["#aa151b", "#f1bf00"], svg: function () {
+      return '<rect width="750" height="500" fill="#aa151b"/><rect y="125" width="750" height="250" fill="#f1bf00"/>'; } },
+    FR: { color: "#002654", confeti: ["#002654", "#ce1126"], svg: function () {
+      return '<rect width="250" height="500" fill="#002654"/><rect x="250" width="250" height="500" fill="#ffffff"/><rect x="500" width="250" height="500" fill="#ce1126"/>'; } },
+    IT: { color: "#008c45", confeti: ["#008c45", "#cd212a"], svg: function () {
+      return '<rect width="250" height="500" fill="#008c45"/><rect x="250" width="250" height="500" fill="#f4f5f0"/><rect x="500" width="250" height="500" fill="#cd212a"/>'; } },
+    PL: { color: "#dc143c", confeti: ["#dc143c", "#d9d9d9"], svg: function () {
+      return '<rect width="750" height="250" fill="#ffffff"/><rect y="250" width="750" height="250" fill="#dc143c"/>'; } },
+    BR: { color: "#009c3b", confeti: ["#009c3b", "#ffdf00", "#002776"], svg: function () {
+      var stars = [[318, 292, 6], [352, 318, 5], [384, 300, 6], [410, 326, 5], [436, 296, 6], [372, 344, 5], [338, 270, 4], [456, 318, 4]]
+        .map(function (s) { return '<circle cx="' + s[0] + '" cy="' + s[1] + '" r="' + s[2] + '" fill="#ffffff"/>'; }).join("");
+      return '<rect width="750" height="500" fill="#009c3b"/><polygon points="64,250 375,42 686,250 375,458" fill="#ffdf00"/>' +
+        '<defs><clipPath id="br-globe"><circle cx="375" cy="250" r="131"/></clipPath></defs>' +
+        '<circle cx="375" cy="250" r="131" fill="#002776"/>' +
+        '<path d="M232 226 Q380 176 516 290" fill="none" stroke="#ffffff" stroke-width="24" clip-path="url(#br-globe)"/>' + stars; } },
+    US: { color: "#0a3161", confeti: ["#b31942", "#0a3161"], svg: function () {
+      var W = 750, H = 500, stripe = H / 13, cw = W * 0.4, ch = stripe * 7, html = "", R = H * 0.0308;
+      for (var i = 0; i < 13; i++) html += '<rect y="' + (i * stripe) + '" width="' + W + '" height="' + (stripe + 0.5) + '" fill="' + (i % 2 === 0 ? "#b31942" : "#ffffff") + '"/>';
+      html += '<rect width="' + cw + '" height="' + ch + '" fill="#0a3161"/>';
+      function star(cx, cy) {
+        var pts = [];
+        for (var k = 0; k < 10; k++) {
+          var r = k % 2 === 0 ? R : R * 0.382, a = -Math.PI / 2 + k * Math.PI / 5;
+          pts.push((cx + r * Math.cos(a)).toFixed(2) + "," + (cy + r * Math.sin(a)).toFixed(2));
+        }
+        return '<polygon fill="#ffffff" points="' + pts.join(" ") + '"/>';
+      }
+      for (var row = 0; row < 9; row++) {
+        var y = (row + 1) * ch / 10, n = row % 2 === 0 ? 6 : 5;
+        for (var c = 0; c < n; c++) html += star(row % 2 === 0 ? (2 * c + 1) * cw / 12 : (2 * c + 2) * cw / 12, y);
+      }
+      return html; } }
+  };
+  function flagOf(code) {
+    return FLAGS[String(code || "").toUpperCase()] || { color: "#5c5c60", confeti: ["#5c5c60", "#a3a3a8"], svg: function () {
+      return '<rect width="750" height="500" fill="#e0e0dd"/><text x="375" y="290" text-anchor="middle" font-size="140" font-weight="700" fill="#5c5c60">' +
+        String(code || "?").replace(/[<>&"]/g, "") + "</text>"; } };
+  }
+  var FP = flagOf(P.bandera), FU = flagOf(U.bandera || "US");
+  $("flag-p").innerHTML = FP.svg(); $("flag-p").setAttribute("aria-label", tx("bandera", P.nombre));
+  $("flag-u").innerHTML = FU.svg(); $("flag-u").setAttribute("aria-label", tx("bandera", U.nombre));
+  document.documentElement.style.setProperty("--c-pais", P.color || FP.color);
+  $("leg-p").textContent = tx("festivoDe", countryName("pais"));
+  $("leg-u").textContent = tx("festivoDe", countryName("usa"));
+  $("leg-esc").textContent = (CFG.calendario && CFG.calendario.nombreEscolar) || T.escolar;
+
+  /* ---------- Versiones: menú en la bandera del país y última versión vista ----------
+     config.js > versiones: [{ id, bandera, nombre, url }]. Todas las versiones comparten navegador
+     (mismo dominio de GitHub Pages), así que se guarda aquí cuál se ha visto la última. */
+  if ((CFG.versiones || []).length) try { localStorage.setItem(SHARED + "ultima", JSON.stringify({ id: CFG.version, url: location.href.split("#")[0], t: Date.now() })); } catch (e) {}
+  (function () {
+    var V = CFG.versiones || [], btn = $("flag-p-btn"), menu = $("ver-menu");
+    if (V.length < 2) return;
+    btn.disabled = false;
+    btn.insertAdjacentHTML("beforeend", '<span class="flag-hint" aria-hidden="true">⇄</span>');
+    btn.setAttribute("aria-label", T.cambiarVersion);
+    V.forEach(function (v) {
+      var a = document.createElement("button");
+      a.type = "button"; a.className = "ver-opt";
+      if (v.id === CFG.version) a.setAttribute("aria-current", "true");
+      a.innerHTML = '<svg viewBox="0 0 750 500" aria-hidden="true">' + flagOf(v.bandera).svg() + "</svg><span></span>";
+      a.querySelector("span").textContent = v.nombre;
+      a.addEventListener("click", function () { if (v.id !== CFG.version && v.url) location.href = v.url; else toggle(false); });
+      menu.appendChild(a);
+    });
+    function toggle(on) { menu.hidden = !on; btn.setAttribute("aria-expanded", String(on)); }
+    btn.addEventListener("click", function () { toggle(menu.hidden); });
+  })();
+
+  /* ---------- Relojes ---------- */
+  $("place-p").textContent = P.ciudadReloj;
+  $("place-u").textContent = U.ciudadReloj;
+  function tickClocks() {
+    $("clock-p").textContent = fmtTime(tzP);
+    $("clock-u").textContent = fmtTime(tzU);
+    $("date-p").textContent = fmtDate(tzP);
+    $("date-u").textContent = fmtDate(tzU);
+    var diff = Math.abs(offsetMinutes(tzP) - offsetMinutes(tzU)) / 60;
+    $("gap").innerHTML = diff ? "<strong>" + (Number.isInteger(diff) ? diff : nf1.format(diff)) + " h</strong>" + T.deDiferencia : "<strong>=</strong>" + T.mismaHora;
+  }
+  tickClocks();
+  setInterval(tickClocks, 15000);
+  setInterval(function () { if (typeof renderLove === "function") renderLove(); }, 15 * 60 * 1000);
+
+  /* ---------- Tiempo (Open-Meteo) ---------- */
+  var WMO = T.wmo;
+  var CLOUD = '<path d="M9 25h15a6 6 0 0 0 0-12a8 8 0 0 0-15 2a5 5 0 0 0 0 10z" fill="var(--cloud)"/>';
+  var CLOUD_UP = '<g transform="translate(0,-5)">' + CLOUD + "</g>";
+  function sunSvg(cx, cy, r) {
+    var rays = "";
+    for (var k = 0; k < 8; k++) {
+      var a = k * Math.PI / 4, x1 = cx + Math.cos(a) * (r + 2.5), y1 = cy + Math.sin(a) * (r + 2.5),
+          x2 = cx + Math.cos(a) * (r + 5.5), y2 = cy + Math.sin(a) * (r + 5.5);
+      rays += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '"/>';
+    }
+    return '<g stroke="var(--sun)" stroke-width="2" stroke-linecap="round">' + rays + "</g>" +
+           '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="var(--sun)"/>';
+  }
+  function moonSvg(cx, cy, s) {
+    return '<path transform="translate(' + cx + "," + cy + ") scale(" + s + ')" d="M2-9a10 10 0 1 0 8 15A8 8 0 0 1 2-9z" fill="#c4cbe0"/>';
+  }
+  function icon(code, isDay) {
+    var day = isDay !== 0, b = "";
+    if (code === 0 || code === 1) b = day ? sunSvg(16, 16, 6.5) : moonSvg(16, 16, 1.2);
+    else if (code === 2) b = (day ? sunSvg(12, 11, 5) : moonSvg(12, 11, 0.8)) + CLOUD;
+    else if (code === 3) b = CLOUD;
+    else if (code === 45 || code === 48)
+      b = '<g stroke="var(--cloud)" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="11" x2="26" y2="11"/><line x1="4" y1="17" x2="28" y2="17"/><line x1="7" y1="23" x2="25" y2="23"/></g>';
+    else if ((code >= 71 && code <= 77) || code === 85 || code === 86)
+      b = CLOUD_UP + '<g fill="var(--snow)"><circle cx="10" cy="26" r="2"/><circle cx="16" cy="29" r="2"/><circle cx="22" cy="26" r="2"/></g>';
+    else if (code >= 95)
+      b = CLOUD_UP + '<path d="M17 19l-5 7h4l-2 6 7-9h-4l2-4z" fill="var(--sun)"/>';
+    else if (code >= 51)
+      b = CLOUD_UP + '<g stroke="var(--rain)" stroke-width="2" stroke-linecap="round"><line x1="11" y1="23" x2="9" y2="28"/><line x1="17" y1="23" x2="15" y2="28"/><line x1="23" y1="23" x2="21" y2="28"/></g>';
+    else b = CLOUD;
+    return '<svg viewBox="0 0 32 32" aria-hidden="true">' + b + "</svg>";
+  }
+  function toF(c) { return c * 9 / 5 + 32; }
+  function t(c, unit) { return c == null ? "—" : Math.round(unit === "fahrenheit" ? toF(c) : c) + "°"; }
+  function rangeHTML(max, min, unit) {
+    return '<span class="tr tmax"><i>' + T.max + '</i><b>' + t(max, unit) + "</b></span>" +
+           '<span class="tr tmin"><i>' + T.min + '</i><b>' + t(min, unit) + "</b></span>";
+  }
+  function otherUnit(u) { return u === "fahrenheit" ? "celsius" : "fahrenheit"; }
+  function unitLetter(u) { return u === "fahrenheit" ? "F" : "C"; }
+  function fetchJSON(url) {
+    return fetch(url).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+  }
+  function hhmm(iso) { return iso ? iso.slice(11, 16) : "—"; }
+  function minutesOf(iso) { var p = iso.slice(11, 16).split(":"); return +p[0] * 60 + +p[1]; }
+  function dayLabel(dateStr, i) {
+    if (i === 0) return T.hoy;
+    if (i === 1) return T.manana;
+    var p = dateStr.split("-");
+    var s = new Intl.DateTimeFormat(LOC, { weekday: "long", timeZone: "UTC" }).format(new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])));
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  // Lugares del tiempo, en el orden de "ordenTiempo" (por defecto EE. UU. arriba y el país debajo)
+  var DETAILS = (CFG.ordenTiempo || ["usa", "pais"]).map(function (k) {
+    var X = k === "pais" ? P : U, W = X.tiempo || {};
+    return { key: k === "pais" ? "p" : "u", nombre: W.nombre || X.ciudadReloj, lat: W.lat, lon: W.lon, zonaHoraria: X.zonaHoraria,
+             unidad: W.unidad || "celsius", mostrarAmbasUnidades: !!W.mostrarAmbasUnidades, dias: CFG.diasTiempo || 6 };
+  }).concat((CFG.lugaresExtra || []).map(function (L, i) {
+    // Lugares de tiempo adicionales (sin bandera ni reloj): config.js > lugaresExtra
+    return { key: "x" + i, nombre: L.nombre, lat: L.lat, lon: L.lon, zonaHoraria: L.zonaHoraria || tzMain,
+             unidad: L.unidad || "celsius", mostrarAmbasUnidades: !!L.mostrarAmbasUnidades, dias: CFG.diasTiempo || 6 };
+  }));
+  function setFlagWx(key, ico, txt) { var a = $("ico-" + key), b = $("wx-" + key); if (a) a.innerHTML = ico; if (b) b.textContent = txt; }
+  (function buildDetailCards() {
+    var wrap = $("details");
+    wrap.className = "details";
+    DETAILS.forEach(function (D, n) {
+      var sec = document.createElement("section");
+      sec.className = "card";
+      sec.innerHTML = '<h2 id="detail-title-' + n + '"></h2>' +
+        '<div id="today-' + n + '"><p class="status">' + T.cargandoTiempo + '</p></div>' +
+        '<div class="hours" id="hours-' + n + '" aria-label="' + T.horaAHora + '"></div>' +
+        '<h3 class="sub">' + T.proximosDias + '</h3>' +
+        '<div class="days" id="days-' + n + '"></div>';
+      wrap.appendChild(sec);
+      $("detail-title-" + n).textContent = tx("tiempoEn", D.nombre);
+    });
+  })();
+
+  // Pinta la previsión. "Hoy" es el día local de cada lugar, no el de la otra ciudad.
+  function renderWeather(D, n, d, savedAt) {
+    var unit = D.unidad, other = otherUnit(unit), both = D.mostrarAmbasUnidades;
+    var dl = d.daily, cur = d.current, hr = d.hourly, td = todayIn(D.zonaHoraria), todayStr = keyOf(td[0], td[1], td[2]);
+    var i0 = dl.time.indexOf(todayStr);
+    if (i0 < 0) return false;                      // la copia es demasiado antigua para hoy
+    var light = minutesOf(dl.sunset[i0]) - minutesOf(dl.sunrise[i0]), rain0 = dl.precipitation_probability_max[i0];
+    var nowTxt = savedAt
+      ? '<span class="stale">' + tx("prevGuardada", ago(savedAt)) + "</span>"
+      : T.ahora + " <strong>" + t(cur.temperature_2m, unit) + "</strong>" +
+        (both ? " (" + t(cur.temperature_2m, other) + unitLetter(other) + ")" : "") + " · " + T.sensacion + " " + t(cur.apparent_temperature, unit);
+    $("today-" + n).innerHTML =
+      '<div class="today-main"><div class="today-left"><span class="today-name">' + T.hoy + '</span>' +
+      '<span class="today-ico">' + icon(dl.weather_code[i0], 1) + '</span>' +
+      '<span class="today-desc">' + (WMO[dl.weather_code[i0]] || "—") + '</span></div>' +
+      '<div class="today-range">' + rangeHTML(dl.temperature_2m_max[i0], dl.temperature_2m_min[i0], unit) + '</div></div>' +
+      '<p class="today-meta">' + nowTxt +
+      ' · ' + T.lluvia + ' ' + (rain0 == null ? "—" : rain0 + " %") +
+      ' · ' + T.amanece + ' ' + hhmm(dl.sunrise[i0]) + ' · ' + T.anochece + ' ' + hhmm(dl.sunset[i0]) +
+      ' · ' + tx("deLuz", Math.floor(light / 60), light % 60) + '</p>';
+
+    // Tiempo actual debajo de la bandera
+    if (savedAt) setFlagWx(D.key, "", T.sinConexion);
+    else setFlagWx(D.key, icon(cur.weather_code, cur.is_day), t(cur.temperature_2m, unit) +
+      (both ? " (" + t(cur.temperature_2m, other) + unitLetter(other) + ")" : "") + " · " + (WMO[cur.weather_code] || ""));
+
+    // Hoy hora a hora (00 a 23)
+    var nowH = +localParts(D.zonaHoraria).hour, html = "";
+    hr.time.forEach(function (tm, i) {
+      if (tm.slice(0, 10) !== todayStr) return;
+      var h = +tm.slice(11, 13), p = hr.precipitation_probability[i];
+      html += '<div class="hour' + (h < nowH ? " past" : h === nowH ? " now" : "") + '">' +
+        '<span class="h-t">' + (h === nowH ? T.ahora : String(h).padStart(2, "0") + " h") + '</span>' +
+        '<span class="h-i">' + icon(hr.weather_code[i], hr.is_day[i]) + '</span>' +
+        '<span class="h-v">' + t(hr.temperature_2m[i], unit) + '</span>' +
+        '<span class="h-r">' + (p ? p + " %" : "") + '</span></div>';
+    });
+    var box = $("hours-" + n);
+    box.innerHTML = html;
+    var nowEl = box.querySelector(".hour.now");
+    box.scrollLeft = nowEl ? Math.max(0, nowEl.offsetLeft - 4) : 0;
+
+    // Días siguientes: desde mañana
+    html = "";
+    var dias = Math.max(1, Math.min(15, D.dias));
+    for (var i = i0 + 1; i < dl.time.length && i <= i0 + dias; i++) {
+      var snow = dl.snowfall_sum[i], rain = dl.precipitation_probability_max[i];
+      html += '<div class="day">' +
+        '<div class="day-head"><span class="day-name">' + dayLabel(dl.time[i], i - i0) + '</span><span class="day-ico">' + icon(dl.weather_code[i], 1) + "</span></div>" +
+        '<div class="day-temp">' + rangeHTML(dl.temperature_2m_max[i], dl.temperature_2m_min[i], unit) + "</div>" +
+        "<p>" + (WMO[dl.weather_code[i]] || "—") + "</p>" +
+        "<p>" + T.sensMin + " " + t(dl.apparent_temperature_min[i], unit) + "</p>" +
+        "<p>" + T.lluviaDia + " " + (rain == null ? "—" : rain + " %") + "</p>" +
+        (snow > 0 ? '<p class="snow">' + T.nieve + ' ' + nf1.format(snow) + " cm</p>" : "<p>" + T.sinNieve + "</p>") +
+        "</div>";
+    }
+    $("days-" + n).innerHTML = html;
+    return true;
+  }
+
+  function loadDetail() {
+    DETAILS.forEach(function (D, n) {
+      var dias = Math.max(1, Math.min(15, D.dias));
+      fetchJSON("https://api.open-meteo.com/v1/forecast?latitude=" + D.lat + "&longitude=" + D.lon +
+        "&current=temperature_2m,apparent_temperature,weather_code,is_day" +
+        "&hourly=temperature_2m,weather_code,precipitation_probability,is_day" +
+        "&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_min," +
+        "snowfall_sum,precipitation_probability_max,sunrise,sunset" +
+        "&forecast_days=" + (dias + 1) + "&timezone=" + encodeURIComponent(D.zonaHoraria))
+        .then(function (d) {
+          if (!renderWeather(D, n, d, null)) throw new Error("datos sin el día de hoy");
+          store("tiempo:" + D.key, { t: Date.now(), d: d });
+        })
+        .catch(function () {
+          var c = load("tiempo:" + D.key);
+          if (c && c.d && renderWeather(D, n, c.d, c.t)) return;
+          $("today-" + n).innerHTML = '<p class="status warn">' + T.errTiempo + '</p>';
+          $("hours-" + n).innerHTML = "";
+          $("days-" + n).innerHTML = "";
+          setFlagWx(D.key, "", T.sinDatos);
+        });
+    });
+  }
+
+  /* ---------- Fechas: utilidades ---------- */
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+  function keyOf(y, m, d) { return y + "-" + pad2(m) + "-" + pad2(d); }
+  function shiftDays(y, m, d, k) { var x = new Date(Date.UTC(y, m - 1, d + k)); return [x.getUTCFullYear(), x.getUTCMonth() + 1, x.getUTCDate()]; }
+  function dayNum(k) { var p = k.split("-"); return Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000; }
+  function easterSunday(y) {           // algoritmo gregoriano anónimo (Meeus/Jones/Butcher)
+    var a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4,
+        f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30,
+        i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451),
+        mes = Math.floor((h + l - 7 * m + 114) / 31), dia = ((h + l - 7 * m + 114) % 31) + 1;
+    return [y, mes, dia];
+  }
+  function nthWeekday(y, r) {
+    var dim = new Date(Date.UTC(y, r.mes, 0)).getUTCDate(), days = [];
+    for (var d = 1; d <= dim; d++) if (new Date(Date.UTC(y, r.mes - 1, d)).getUTCDay() === r.diaSemana) days.push(d);
+    return r.orden === -1 ? days[days.length - 1] : days[r.orden - 1];
+  }
+  // fecha "MM-DD" o "AAAA-MM-DD", regla { mes, diaSemana, orden, desplazamiento } o pascua (días respecto al Domingo de Resurrección)
+  function ymdOfRule(x, y) {
+    if (x.pascua != null) { var e = easterSunday(y); return shiftDays(e[0], e[1], e[2], x.pascua); }
+    if (x.regla) {
+      var d = nthWeekday(y, x.regla);
+      return d ? shiftDays(y, x.regla.mes, d, x.regla.desplazamiento || 0) : null;
+    }
+    if (x.fecha) {
+      var f = x.fecha.replace(/\s/g, "");
+      if (f.length === 10) return +f.slice(0, 4) === y ? [y, +f.slice(5, 7), +f.slice(8, 10)] : null;
+      var mm = +f.slice(0, 2), dd = +f.slice(3, 5);
+      if (mm === 2 && dd === 29 && new Date(Date.UTC(y, 1, 29)).getUTCMonth() !== 1) return null;
+      return [y, mm, dd];
+    }
+    return null;
+  }
+  function stripAcc(x) { return String(x || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
+
+  /* ---------- Datos online para el calendario (con caché y respaldo en config.js) ---------- */
+  var ONLINE = { fest: { usa: {}, pais: {} }, sport: [], status: { fest: {}, sport: null } };
+  var OL = CFG.online || {};
+  var SP = OL.deportes || {};
+  var SPORT_CATS = (SP.equipos || []).map(function (e) { return e.categoria || e.nombre; });
+  function refreshCalendarViews() { marksCache = {}; if (calY) renderCalendar(); renderDates(); renderCalStatus(); }
+  function src(which) { return which === "pais" ? P : U; }
+
+  // Festivos: los oficiales de config.js mandan; si un año no está, se piden a Nager.Date (nacionales + región)
+  function loadOnlineHolidays(which, y) {
+    var X = src(which), N = X.festivosOnline;
+    if (!OL.festivos || !N || (X.festivos && X.festivos[y]) || ONLINE.fest[which][y]) return;
+    var key = "festivos:" + N.pais + ":" + y, c = load(key);
+    if (c && c.list) { ONLINE.fest[which][y] = c.list; ONLINE.status.fest[which] = { ok: true, t: c.t, y: y }; }
+    if (c && Date.now() - c.t < 7 * 86400000) return;
+    ONLINE.fest[which][y] = ONLINE.fest[which][y] || "cargando";
+    fetchJSON("https://date.nager.at/api/v3/PublicHolidays/" + y + "/" + N.pais)
+      .then(function (arr) {
+        var names = X.nombresFestivos || {};
+        var list = arr.filter(function (h) {
+          return (h.global || (N.region && (h.counties || []).indexOf(N.region) !== -1)) && (!h.types || h.types.indexOf("Public") !== -1);
+        }).map(function (h) {
+          return { fecha: h.date, nombre: names[h.name] || names[h.localName] || h.localName || h.name,
+                   ambito: h.global ? (N.ambitoNacional || "Nacional") : (N.ambitoRegion || N.region),
+                   provisional: !N.confirmados, online: true };
+        });
+        if (!list.length) throw new Error("vacío");
+        ONLINE.fest[which][y] = list; store(key, { t: Date.now(), list: list });
+        ONLINE.status.fest[which] = { ok: true, t: Date.now(), y: y };
+        refreshCalendarViews();
+      })
+      .catch(function () {
+        if (ONLINE.fest[which][y] === "cargando") delete ONLINE.fest[which][y];
+        if (!ONLINE.status.fest[which] || !ONLINE.status.fest[which].ok) ONLINE.status.fest[which] = { ok: false, y: y };
+        renderCalStatus();
+      });
+  }
+  function festList(which, y) {
+    var X = src(which), official = X.festivos && X.festivos[y];
+    if (official) return official;
+    loadOnlineHolidays(which, y);
+    var online = Array.isArray(ONLINE.fest[which][y]) && ONLINE.fest[which][y];
+    var hab = (X.festivosHabituales || []).map(function (h) {
+      var r = ymdOfRule(h, y);
+      return r && r[0] === y && { fecha: keyOf(r[0], r[1], r[2]), nombre: h.nombre, ambito: h.ambito || "",
+        provisional: true, estimado: true, soloConfig: !!h.soloConfig };
+    }).filter(Boolean);
+    // Los festivos que la fuente online no da (locales de una ciudad) se añaden desde config.js como previstos
+    return online ? online.concat(hab.filter(function (h) { return h.soloConfig; })) : hab;
+  }
+
+  // Partidos desde TheSportsDB (equipos de config.js > online.deportes)
+  var TSDB = "https://www.thesportsdb.com/api/v1/json/" + (SP.clave || "123") + "/";
+  function teamsIn(txt) {
+    var x = stripAcc(txt);
+    return (SP.equipos || []).filter(function (tm) {
+      return [].concat(tm.coincide || tm.nombre).some(function (w) { return x.indexOf(stripAcc(w)) !== -1; });
+    }).map(function (tm) { return tm.nombre; });
+  }
+  function tsdbTeamEvents(team) {
+    function ok(evs) {
+      return evs.filter(function (e) { return teamsIn((e.strHomeTeam || "") + " " + (e.strAwayTeam || "") + " " + (e.strEvent || "")).indexOf(team.nombre) !== -1; });
+    }
+    function byId(id) { return id ? fetchJSON(TSDB + "eventsnext.php?id=" + id).then(function (d) { return ok((d && d.events) || []); }) : Promise.resolve([]); }
+    var cachedId = load("equipo:" + team.nombre) || team.id;
+    return byId(cachedId).then(function (evs) {
+      if (evs.length) return evs;
+      // El identificador no devuelve partidos: se busca el equipo por nombre y se guarda el bueno
+      return fetchJSON(TSDB + "searchteams.php?t=" + encodeURIComponent(team.buscar || team.nombre)).then(function (d) {
+        var tm = ((d && d.teams) || []).filter(function (x) { return !team.deporte || x.strSport === team.deporte; })[0];
+        if (!tm || String(tm.idTeam) === String(cachedId)) return [];
+        store("equipo:" + team.nombre, tm.idTeam);
+        return byId(tm.idTeam);
+      });
+    });
+  }
+  function whenFromUTC(dateStr, timeStr, stamp) {
+    var iso = stamp ? String(stamp).replace(" ", "T") : (dateStr + "T" + (timeStr || "00:00:00"));
+    if (!/(Z|[+-]\d\d:?\d\d)$/.test(iso)) iso += "Z";
+    var dt = new Date(iso);
+    if (isNaN(dt)) return null;
+    var p = localParts(tzMain, dt), known = !!(stamp || (timeStr && timeStr.slice(0, 5) !== "00:00"));
+    return { key: p.year + "-" + p.month + "-" + p.day, nota: known ? bothTimes(dt) : "" };
+  }
+  function loadOnlineSports() {
+    if (!SP.activo || !(SP.equipos || []).length) return;
+    var c = load("deportes");
+    if (c && c.list) { ONLINE.sport = c.list; ONLINE.status.sport = { ok: true, t: c.t, cache: true }; }
+    if (c && Date.now() - c.t < (SP.horasCache || 12) * 3600000) return;
+    var jobs = SP.equipos.map(function (tm) {
+      return tsdbTeamEvents(tm).then(function (evs) {
+        return evs.map(function (e) {
+          var w = whenFromUTC(e.dateEvent, e.strTime, e.strTimestamp);
+          return w && { id: e.idEvent, key: w.key, nombre: (e.strHomeTeam || "") + " - " + (e.strAwayTeam || ""), categoria: tm.categoria || tm.nombre,
+            nota: [e.strLeague, w.nota || T.horaConfirmar, e.strVenue].filter(Boolean).join(" · ") };
+        }).filter(Boolean);
+      }).catch(function () { return null; });
+    });
+    Promise.all(jobs).then(function (res) {
+      if (res.every(function (r) { return r === null; })) throw new Error("sin respuesta");
+      var seen = {}, list = [];
+      res.forEach(function (r) { (r || []).forEach(function (e) { if (!seen[e.id]) { seen[e.id] = 1; list.push(e); } }); });
+      ONLINE.sport = list; store("deportes", { t: Date.now(), list: list });
+      ONLINE.status.sport = { ok: true, t: Date.now(), n: list.length };
+      refreshCalendarViews();
+    }).catch(function () {
+      ONLINE.status.sport = { ok: false, t: c && c.t };
+      renderCalStatus();
+    });
+  }
+
+  /* ---------- Calendario: marcas por día ---------- */
+  var marksCache = {};
+  function marksForYear(y) {
+    if (marksCache[y]) return marksCache[y];
+    var C = CFG.calendario || {}, map = {};
+    function add(k, m) { (map[k] = map[k] || []).push(m); }
+
+    // Festivos de los dos países
+    ["pais", "usa"].forEach(function (which) {
+      festList(which, y).forEach(function (f) {
+        add(f.fecha, { tipo: "fest", pais: which, nombre: f.nombre, ambito: f.ambito, provisional: !!f.provisional, estimado: !!f.estimado, online: !!f.online });
+      });
+    });
+    // Familia (cumpleaños y fechas con "lista" de mensajesEspeciales)
+    (CFG.mensajesEspeciales || []).forEach(function (x) {
+      if (!x.lista) return;
+      var r = ymdOfRule(x, y);
+      if (r) add(keyOf(r[0], r[1], r[2]), { tipo: "fam", nombre: x.lista });
+    });
+    // Partidos online. Sustituyen a los de config.js de la misma categoría (±1 día)
+    var onl = ONLINE.sport || [];
+    onl.forEach(function (e) {
+      if (+e.key.slice(0, 4) === y) add(e.key, { tipo: "evt", nombre: e.nombre, categoria: e.categoria, nota: e.nota, inicio: true, desde: e.key, online: true });
+    });
+    function coveredOnline(x) {
+      if (SPORT_CATS.indexOf(x.categoria) === -1) return false;
+      var d0 = dayNum(x.fecha);
+      return onl.some(function (e) { return e.categoria === x.categoria && Math.abs(dayNum(e.key) - d0) <= 1; });
+    }
+    // Rangos de fechas (calendario escolar y eventos de varios días)
+    function addRange(x, tipo, extra) {
+      var a = x.fecha.split("-").map(Number), b = (x.hasta || x.fecha).split("-").map(Number);
+      var t0 = Date.UTC(a[0], a[1] - 1, a[2]), t1 = Date.UTC(b[0], b[1] - 1, b[2]);
+      for (var tt = t0; tt <= t1; tt += 86400000) {
+        var dd = new Date(tt);
+        if (dd.getUTCFullYear() !== y) continue;
+        var m = { tipo: tipo, nombre: x.nombre, inicio: tt === t0, desde: x.fecha, hasta: x.hasta, nota: x.nota, provisional: !!x.provisional };
+        for (var k in extra) m[k] = extra[k];
+        add(keyOf(y, dd.getUTCMonth() + 1, dd.getUTCDate()), m);
+      }
+    }
+    (C.escolar || []).forEach(function (x) { addRange(x, "esc", { etiqueta: x.etiqueta }); });
+    // Eventos con fecha concreta. "hora" (HH:MM) va en la zona de EE. UU., o en la del país con zona: "pais".
+    (C.eventos || []).forEach(function (x) {
+      if (coveredOnline(x)) return;
+      var nota = x.nota || "";
+      if (x.hora && /^\d\d:\d\d$/.test(x.hora)) {
+        var f = x.fecha.split("-").map(Number), hm = x.hora.split(":").map(Number);
+        var dt = new Date(zonedTime(x.zona === "pais" ? tzP : tzU, f[0], f[1], f[2], hm[0], hm[1]));
+        nota = [bothTimes(dt), nota].filter(Boolean).join(" · ");
+      }
+      addRange(x, "evt", { categoria: x.categoria, nota: nota, pais: x.pais });
+    });
+    // Días señalados de los dos países (sin repetir el mismo nombre el mismo día)
+    function addSen(k, which, nombre, nota) {
+      var same = (map[k] || []).filter(function (m) {
+        return (m.tipo === "sen" && m.nombre === nombre) || (m.tipo === "fest" && m.nombre.indexOf(nombre) === 0);
+      });
+      if (same.length) { same.forEach(function (m) { if (m.tipo === "sen" && m.pais !== which) m.pais = "ambos"; }); return; }
+      add(k, { tipo: "sen", pais: which, nombre: nombre, nota: nota });
+    }
+    ["pais", "usa"].forEach(function (which) {
+      (src(which).senalados || []).forEach(function (x) {
+        var r = ymdOfRule(x, y);
+        if (r && r[0] === y) addSen(keyOf(r[0], r[1], r[2]), which, x.nombre, x.nota);
+      });
+    });
+    // Cambios de hora: se calculan solos a partir de la zona horaria de cada sitio
+    var dstDays = {};
+    [["usa", tzU], ["pais", tzP]].forEach(function (z) {
+      var prev = offsetMinutes(z[1], new Date(Date.UTC(y - 1, 11, 31, 12)));
+      for (var tt = Date.UTC(y, 0, 1, 12); tt < Date.UTC(y + 1, 0, 1, 12); tt += 86400000) {
+        var o = offsetMinutes(z[1], new Date(tt));
+        if (o !== prev) {
+          var dd = new Date(tt), diff = Math.abs(offsetMinutes(tzP, dd) - offsetMinutes(tzU, dd)) / 60, dk = keyOf(y, dd.getUTCMonth() + 1, dd.getUTCDate());
+          if (dstDays[dk]) {
+            // Los dos países cambian el mismo día: se deja un único aviso con ambos nombres
+            dstDays[dk].nombre = tx(o > prev ? "cambioAdelanta" : "cambioRetrasa", countryName("pais") + T.yConj + countryName("usa"));
+            dstDays[dk].pais = "ambos"; dstDays[dk].nota = diff ? tx("desdeHoyDif", diff) : T.desdeHoyMisma;
+          } else {
+            addSen(dk, z[0], tx(o > prev ? "cambioAdelanta" : "cambioRetrasa", countryName(z[0])), diff ? tx("desdeHoyDif", diff) : T.desdeHoyMisma);
+            dstDays[dk] = map[dk][map[dk].length - 1];
+          }
+        }
+        prev = o;
+      }
+    });
+    var order = { fest: 0, fam: 1, esc: 2, evt: 3, sen: 4 };
+    Object.keys(map).forEach(function (k) { map[k].sort(function (a, b) { return order[a.tipo] - order[b.tipo]; }); });
+    return (marksCache[y] = map);
+  }
+  function marksOn(y, m, d) { return marksForYear(y)[keyOf(y, m, d)] || []; }
+
+  /* ---------- Calendario mensual ---------- */
+  var calY, calM, calSel;
+  var MONTHS = T.meses;
+  function tagOf(m) { return m.tipo === "fest" ? (m.pais === "usa" ? "FestU" : "Fest") : m.tipo === "fam" ? "Fam" : m.tipo === "evt" ? "Evt" : m.tipo === "esc" ? "Esc" : "Dia"; }
+  function tagText(tag) { return tag === "Dia" ? T.tagDia : tag === "Esc" ? T.tagEsc : tag === "Fam" ? T.tagFam : tag === "Evt" ? T.tagEvt : T.tagFest; }
+  function shortDate(s) {
+    var p = s.split("-");
+    return new Intl.DateTimeFormat(LOC, { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])));
+  }
+  function rangeTxt(m) { return m.hasta ? tx("rango", shortDate(m.desde), shortDate(m.hasta)) : ""; }
+  function evtMeta(m) {
+    return [m.categoria || T.evento, rangeTxt(m), m.nota || "", m.provisional ? T.fechaConfirmar : "", m.online ? T.datoOnline : ""].filter(Boolean).join(" · ");
+  }
+  function festMeta(m) {
+    var X = src(m.pais), N = X.festivosOnline || {};
+    return tx("festivoDe", countryName(m.pais)) + (m.ambito ? " · " + m.ambito : "") +
+      (m.online ? T.fuenteOnline + (m.provisional ? (X.fuenteOficial ? tx("pendConfirmarCon", X.fuenteOficial) : T.pendConfirmar) : "") :
+       m.estimado ? T.previsto : m.provisional ? T.pendAprob : "");
+  }
+  function senMeta(m) { return [T.diaSenalado + (m.pais === "usa" || m.pais === "pais" ? " · " + countryName(m.pais) : ""), m.nota || ""].filter(Boolean).join(" · "); }
+  function escMeta(m) {
+    var C = CFG.calendario || {};
+    return [m.etiqueta || C.nombreEscolar || T.calEscolar, rangeTxt(m), m.nota || "", m.provisional ? T.porConfirmar : ""].filter(Boolean).join(" · ");
+  }
+  function renderCalendar() {
+    var td = todayYMD(), grid = $("cal-grid");
+    $("cal-month").textContent = MONTHS[calM - 1].charAt(0).toUpperCase() + MONTHS[calM - 1].slice(1) + " " + calY;
+    $("cal-today").hidden = calY === td[0] && calM === td[1];
+    var first = (new Date(Date.UTC(calY, calM - 1, 1)).getUTCDay() + 6) % 7;     // lunes = 0
+    var dim = new Date(Date.UTC(calY, calM, 0)).getUTCDate();
+    var html = "";
+    T.iniciales.forEach(function (w) { html += '<div class="cal-dow">' + w + "</div>"; });
+    for (var i = 0; i < first; i++) html += '<div class="cal-day empty" aria-hidden="true"></div>';
+    for (var d = 1; d <= dim; d++) {
+      var marks = marksOn(calY, calM, d), cls = "cal-day", dots = "", label = tx("diaDe", d, MONTHS[calM - 1]);
+      ["pais", "usa"].forEach(function (which) {
+        var f = marks.filter(function (x) { return x.tipo === "fest" && x.pais === which; }), s = which === "pais" ? "p" : "u";
+        if (f.some(function (x) { return !x.provisional; })) cls += " fest-" + s;
+        else if (f.length) cls += " prov-" + s;
+      });
+      if ((first + d - 1) % 7 === 6) cls += " sun";
+      if (calY === td[0] && calM === td[1] && d === td[2]) { cls += " today"; label += T.esHoyAria; }
+      if (marks.some(function (x) { return x.tipo === "fam"; })) dots += '<i class="d-fam"></i>';
+      if (marks.some(function (x) { return x.tipo === "esc"; })) dots += '<i class="d-esc"></i>';
+      if (marks.some(function (x) { return x.tipo === "evt"; })) dots += '<i class="d-evt"></i>';
+      if (marks.some(function (x) { return x.tipo === "sen"; })) dots += '<i class="d-sen"></i>';
+      if (marks.length) label += ": " + marks.map(function (x) { return x.nombre; }).join(", ");
+      html += '<button type="button" class="' + cls + '" data-d="' + d + '" aria-pressed="' + (d === calSel) + '" aria-label="' +
+        label.replace(/"/g, "&quot;") + '"><span>' + d + '</span><span class="cal-dots">' + dots + "</span></button>";
+    }
+    grid.innerHTML = html;
+    renderCalDetail();
+  }
+  function renderCalDetail() {
+    var box = $("cal-detail"), marks = marksOn(calY, calM, calSel);
+    var dt = new Date(Date.UTC(calY, calM - 1, calSel));
+    box.innerHTML = '<p class="cal-date"></p>';
+    box.firstChild.textContent = new Intl.DateTimeFormat(LOC, { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(dt);
+    if (marks.length) {
+      var ul = document.createElement("ul");
+      ul.className = "cal-marks";
+      marks.forEach(function (m) {
+        var li = document.createElement("li"), tag = tagOf(m);
+        li.innerHTML = '<span class="tag ' + tag + '">' + tagText(tag) + '</span><span><span class="nm"></span><span class="meta"></span></span>';
+        li.querySelector(".nm").textContent = m.nombre;
+        li.querySelector(".meta").textContent = m.tipo === "fest" ? festMeta(m) : m.tipo === "fam" ? T.familia :
+          m.tipo === "evt" ? evtMeta(m) : m.tipo === "esc" ? escMeta(m) : senMeta(m);
+        ul.appendChild(li);
+      });
+      box.appendChild(ul);
+    } else {
+      box.insertAdjacentHTML("beforeend", '<p class="cal-none">' + T.nadaMarcado + '</p>');
+    }
+    var S = window.SANTORAL, santo = S && S[pad2(calM) + "-" + pad2(calSel)];
+    if (santo) {
+      var p = document.createElement("p");
+      p.className = "cal-santo";
+      p.innerHTML = "<b></b> <span></span>"; p.querySelector("b").textContent = T.santoral;
+      p.querySelector("span").textContent = santo;
+      box.appendChild(p);
+    }
+  }
+  // Avisos de datos caducados o a punto de caducar + estado de las fuentes online
+  function renderCalStatus() {
+    var C = CFG.calendario || {}, td = todayYMD(), y = td[0], warn = [], info = [], todayK = keyOf(td[0], td[1], td[2]);
+    function future(x) { return (x.hasta || x.fecha) >= todayK; }
+    if (P.fuenteOficial && P.avisarFestivos !== false) {
+      var F = P.festivos || {};
+      if (!F[y]) warn.push(tx("warnFestivos", countryName("pais"), y));
+      if (td[1] >= 10 && !F[y + 1]) warn.push(tx("warnFestivosSig", y + 1, P.fuenteOficial));
+    }
+    if (C.escolar && !C.escolar.some(future))
+      warn.push(tx("warnEscolar", C.nombreEscolar ? tx("deX", C.nombreEscolar) : ""));
+    var ev = C.eventos || [];
+    if (!ev.some(function (x) { return future(x) && SPORT_CATS.indexOf(x.categoria) === -1; }))
+      warn.push(T.warnEventos);
+    var sportFuture = ev.some(function (x) { return future(x) && SPORT_CATS.indexOf(x.categoria) !== -1; }) ||
+      (ONLINE.sport || []).some(function (e) { return e.key >= todayK; });
+    if (SPORT_CATS.length && !sportFuture && td[1] >= 6 && td[1] <= 9)
+      warn.push(tx("warnPartidos", SPORT_CATS.join(", ")));
+    var st = ONLINE.status;
+    if (st.sport) info.push(st.sport.ok ? tx("stPartidos", st.sport.t ? ago(st.sport.t) : "") :
+      st.sport.t ? tx("stPartidosCopia", ago(st.sport.t)) : T.stPartidosConfig);
+    ["pais", "usa"].forEach(function (w) {
+      var s = st.fest[w];
+      if (s) info.push(s.ok ? tx("stFestivos", countryName(w), s.y) : tx("stSinFestivos", countryName(w), s.y));
+    });
+    var wEl = $("cal-warn");
+    wEl.hidden = !warn.length; wEl.textContent = warn.join(" ");
+    $("cal-status").textContent = info.join(" · ");
+  }
+  function goMonth(y, m, sel) {
+    calY = y; calM = m;
+    var td = todayYMD();
+    calSel = sel || (y === td[0] && m === td[1] ? td[2] : 1);
+    renderCalendar();
+  }
+  function stepMonth(k) { var x = new Date(Date.UTC(calY, calM - 1 + k, 1)); goMonth(x.getUTCFullYear(), x.getUTCMonth() + 1); }
+  $("cal-prev").addEventListener("click", function () { stepMonth(-1); });
+  $("cal-next").addEventListener("click", function () { stepMonth(1); });
+  $("cal-today").addEventListener("click", function () { var td = todayYMD(); goMonth(td[0], td[1]); });
+  $("cal-grid").addEventListener("click", function (e) {
+    var b = e.target.closest(".cal-day");
+    if (!b || !b.dataset.d) return;
+    calSel = +b.dataset.d;
+    Array.prototype.forEach.call(this.querySelectorAll(".cal-day[aria-pressed]"), function (x) {
+      x.setAttribute("aria-pressed", String(+x.dataset.d === calSel));
+    });
+    renderCalDetail();
+  });
+  function renderCalendarToday() { var td = todayYMD(); loadOnlineSports(); marksCache = {}; goMonth(td[0], td[1]); renderCalStatus(); }
+
+  /* ---------- Próximas fechas (misma fuente que el calendario) ---------- */
+  var datesDay = "";
+  function renderDates() {
+    var td = todayYMD(), items = [], min = CFG.mostrarFechas || 12, dias = CFG.proximasFechasDias || 31,
+        excl = CFG.proximasFechasExcluir || [];
+    datesDay = keyOf(td[0], td[1], td[2]);
+    for (var k = 0; k < 400; k++) {
+      if (k > dias && items.length >= min) break;
+      var r = shiftDays(td[0], td[1], td[2], k);
+      marksOn(r[0], r[1], r[2]).forEach(function (m) {
+        if ((m.tipo === "evt" || m.tipo === "esc") && !m.inicio && k > 0) return;      // un rango aparece una vez
+        if (m.tipo === "evt" && excl.indexOf(m.categoria) !== -1) return;              // categorías que solo van al calendario
+        items.push({ r: r, k: k, m: m });
+      });
+    }
+    var ul = $("dates"), rows = Math.ceil(items.length / 2);
+    ul.innerHTML = "";
+    ul.style.gridTemplateRows = "repeat(" + Math.max(rows, 1) + ", auto)";
+    if (!items.length) { ul.innerHTML = '<li class="col-top"><span class="muted">' + T.noFechas + '</span></li>'; return; }
+    var dfmt = new Intl.DateTimeFormat(LOC, { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+    items.forEach(function (x, i) {
+      var li = document.createElement("li"), tag = tagOf(x.m);
+      if (i === 0 || i === rows) li.className = "col-top";
+      li.innerHTML = '<span class="tag ' + tag + '">' + tagText(tag) + '</span><span class="d-txt"><span class="d-name"></span>' +
+        '<span class="d-when"></span><span class="d-cd"></span></span>';
+      li.querySelector(".d-name").textContent = x.m.nombre + (x.m.provisional && !x.m.online && x.m.tipo !== "fest" ? T.porConfirmarParen : "");
+      li.querySelector(".d-when").textContent = dfmt.format(new Date(Date.UTC(x.r[0], x.r[1] - 1, x.r[2])));
+      var cd = li.querySelector(".d-cd");
+      if (x.k === 0) { cd.textContent = x.m.desde && !x.m.inicio ? T.enCurso : T.esHoy; cd.classList.add("today"); }
+      else cd.dataset.t = midnightIn(tzMain, x.r[0], x.r[1], x.r[2]);
+      ul.appendChild(li);
+    });
+    tickDates();
+  }
+  // Cuenta atrás en vivo: "4 días · 13:11:04" o "2 meses 3 días · 13:11:04"
+  function addMonths(tm, n) {
+    var d = new Date(tm), day = d.getDate();
+    d.setDate(1); d.setMonth(d.getMonth() + n);
+    d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()));
+    return d.getTime();
+  }
+  function breakdown(from, to) {
+    var months = 0;
+    while (addMonths(from, months + 1) <= to) months++;
+    var rest = Math.floor((to - addMonths(from, months)) / 1000);
+    var weeks = Math.floor(rest / 604800); rest -= weeks * 604800;
+    var days = Math.floor(rest / 86400); rest -= days * 86400;
+    var hours = Math.floor(rest / 3600); rest -= hours * 3600;
+    var mins = Math.floor(rest / 60);
+    return [months, weeks, days, hours, mins, rest - mins * 60];
+  }
+  function tickDates() {
+    var now = Date.now(), td = todayYMD();
+    if (keyOf(td[0], td[1], td[2]) !== datesDay) { renderDates(); return; }   // ha cambiado el día
+    Array.prototype.forEach.call(document.querySelectorAll("#dates .d-cd[data-t]"), function (el) {
+      var tt = +el.dataset.t;
+      if (tt <= now) { renderDates(); return; }
+      var b = breakdown(now, tt), d = b[1] * 7 + b[2], txt = "";
+      if (b[0]) txt = b[0] + " " + (b[0] === 1 ? T.mes : T.mesesVarios && !(b[0] % 10 >= 2 && b[0] % 10 <= 4 && (b[0] % 100 < 12 || b[0] % 100 > 14)) ? T.mesesVarios : T.mesesN) + " ";
+      if (d || !b[0]) txt += d + " " + (d === 1 ? T.dia : T.dias);
+      el.textContent = txt.trim() + " · " + [b[3], b[4], b[5]].map(function (v) { return String(v).padStart(2, "0"); }).join(":");
+    });
+  }
+  setInterval(tickDates, 1000);
+
+  /* ---------- Frase del día y mensajes especiales ---------- */
+  var FRASES = window.FRASES || [];
+  function pick(list, i) { return list[((i % list.length) + list.length) % list.length]; }
+  function dayNumber() { var td = todayYMD(); return Math.floor(Date.UTC(td[0], td[1] - 1, td[2]) / 86400000); }  // cambia a medianoche de la zona principal
+  function ymdIn(tz, offsetDays) {
+    var p = localParts(tz, new Date(Date.now() + (offsetDays || 0) * 86400000));
+    return { y: +p.year, m: +p.month, d: +p.day, mmdd: p.month + "-" + p.day, full: p.year + "-" + p.month + "-" + p.day };
+  }
+  function matches(x, tt) {
+    if (x.fecha) { var f = x.fecha.replace(/\s/g, ""); return f === tt.mmdd || f === tt.full; }
+    if (x.regla) {
+      var r = ymdOfRule(x, tt.y);
+      return !!r && r[1] === tt.m && r[2] === tt.d;
+    }
+    return false;
+  }
+  // zona: "ambas" (desde que empieza el día en el país hasta que acaba en EE. UU.), "pais", "usa"; sin zona, la principal
+  function zonesOf(x) { return x.zona === "ambas" ? [tzP, tzU] : x.zona === "pais" ? [tzP] : x.zona === "usa" ? [tzU] : [tzMain]; }
+  function messagesFor(offsetDays) {
+    return (CFG.mensajesEspeciales || []).filter(function (x) {
+      return zonesOf(x).some(function (tz) { return matches(x, ymdIn(tz, offsetDays)); });
+    });
+  }
+  function specialMessage() {
+    var hit = messagesFor(0);
+    return hit.length ? hit.map(function (x) { return x.texto; }).join("  ·  ") : null;
+  }
+  function preNotice() {
+    var N = CFG.avisoPrevioDias || 0, out = [], today = messagesFor(0);
+    for (var k = 1; k <= N; k++) {
+      messagesFor(k).forEach(function (x) {
+        if (!x.lista || !x.avisar || today.indexOf(x) !== -1) return;
+        if (out.some(function (o) { return o.x === x; })) return;
+        out.push({ x: x, k: k });
+      });
+    }
+    return out.map(function (o) { return (o.k === 1 ? T.manana : tx("enNDias", o.k)) + ": " + o.x.lista.charAt(0).toLowerCase() + o.x.lista.slice(1); }).join("  ·  ");
+  }
+  function renderLove() {
+    var special = specialMessage(), pre = preNotice();
+    $("love-pre").textContent = pre ? T.recuerda + pre : "";
+    if (special) {
+      $("love").className = "love special";
+      $("love-en").textContent = special;
+      $("love-es").textContent = "";
+      $("love").hidden = false;
+      return;
+    }
+    $("love").className = "love";
+    if (!FRASES.length) { $("love-en").textContent = ""; $("love-es").textContent = ""; $("love").hidden = !pre; return; }
+    var f = pick(FRASES, dayNumber());
+    $("love-en").textContent = learnTxt(f);
+    $("love-es").textContent = f[LANG] != null ? f[LANG] : f.es;
+    $("love").hidden = false;
+  }
+
+  /* ---------- Expresiones útiles ---------- */
+  function dailySlice(list, n) {
+    if (list.length <= n) return list.slice();
+    var start = (dayNumber() * n) % list.length, out = [];
+    for (var i = 0; i < n; i++) out.push(list[(start + i) % list.length]);
+    return out;
+  }
+  function renderExpr() {
+    var E = window.EXPRESIONES, card = $("expr-card");
+    if (!E || card.dataset.off) { card.hidden = true; return; }
+    // Todas las listas mezcladas por turnos; las aprendidas salen de la rotación
+    var learned = load(LEARNED_KEY, true) || {}, total = 0;
+    var groups = Object.keys(E).map(function (k) { return E[k] || []; }), list = [];
+    var longest = Math.max.apply(null, groups.map(function (g) { return g.length; }));
+    for (var i = 0; i < longest; i++) groups.forEach(function (g) { if (g[i]) { total++; if (!learned[learnTxt(g[i])]) list.push(g[i]); } });
+    if (!list.length) { card.hidden = true; return; }
+    var ul = $("expr-list"), today = dailySlice(list, CFG.palabrasPorDia || 20), rows = Math.ceil(today.length / 2);
+    ul.innerHTML = "";
+    ul.style.gridTemplateRows = "repeat(" + rows + ", auto)";
+    today.forEach(function (w, i) {
+      var li = document.createElement("li");
+      if (i === 0 || i === rows) li.className = "col-top";
+      li.innerHTML = '<span class="x-en"></span><span class="x-es"></span><button type="button" class="x-chk" aria-label="' + T.marcarAprendida + '">✓</button>';
+      li.children[0].textContent = learnTxt(w);
+      li.children[1].textContent = w[LANG] != null ? w[LANG] : w.es;
+      li.dataset.en = learnTxt(w);
+      ul.appendChild(li);
+    });
+    var nL = Object.keys(learned).length;
+    $("expr-count").textContent = nL ? tx("aprendidasDe", nL, total) : T.marcaCirculo;
+    $("expr-reset").hidden = !nL;
+    card.hidden = false;
+  }
+  (function () {
+    var btn = $("expr-mode"), ul = $("expr-list");
+    function setMode(on) { btn.setAttribute("aria-pressed", String(on)); ul.classList.toggle("repaso", on); store("repaso", on, true); }
+    setMode(!!load("repaso", true));
+    btn.addEventListener("click", function () { setMode(btn.getAttribute("aria-pressed") !== "true"); });
+    ul.addEventListener("click", function (e) {
+      var li = e.target.closest("li");
+      if (!li) return;
+      if (e.target.closest(".x-chk")) {
+        var L = load(LEARNED_KEY, true) || {};
+        if (L[li.dataset.en]) delete L[li.dataset.en]; else L[li.dataset.en] = Date.now();
+        store(LEARNED_KEY, L, true);
+        li.classList.toggle("learned", !!L[li.dataset.en]);
+        var n = Object.keys(L).length;
+        $("expr-count").textContent = n ? tx("aprendidasManana", n) : "";
+        $("expr-reset").hidden = !n;
+        return;
+      }
+      if (ul.classList.contains("repaso")) li.classList.toggle("show");
+    });
+    $("expr-reset").addEventListener("click", function () {
+      if (!window.confirm(T.confirmReiniciar)) return;
+      store(LEARNED_KEY, {}, true); renderExpr();
+    });
+  })();
+
+  /* ---------- Conversor ---------- */
+  var nf2 = new Intl.NumberFormat(LOC, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var nfMax2 = new Intl.NumberFormat(LOC, { maximumFractionDigits: 2 });
+  var nf4 = new Intl.NumberFormat(LOC, { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+  function parseNum(v) {
+    v = String(v).replace(/\s/g, "");
+    if (v === "") return NaN;
+    if (v.indexOf(",") !== -1) v = v.replace(/\./g, "").replace(",", ".");
+    return parseFloat(v);
+  }
+  function lin(f) { return { toB: function (x) { return x * f; }, toA: function (x) { return x / f; } }; }
+  var MON = P.moneda || { codigo: "EUR", simbolo: "€", nombre: "Euros" };
+  var rate = null;                                   // unidades de la moneda del país por 1 dólar
+  var CONV = [
+    { id: "money", btn: T.dolares + " / " + MON.nombre.toLowerCase(), main: true, a: T.dolares, sa: "$", b: MON.nombre, sb: MON.simbolo, money: true,
+      conv: { toB: function (x) { return rate ? x * rate : NaN; }, toA: function (x) { return rate ? x / rate : NaN; } } },
+    { id: "mi", btn: T.bMillas, a: T.millas, sa: "mi", b: T.kilometros, sb: "km", conv: lin(1.609344) },
+    { id: "yd", btn: T.bYardas, a: T.yardas, sa: "yd", b: T.metros, sb: "m", conv: lin(0.9144) },
+    { id: "f", btn: "°F / °C", a: T.fahrenheit, sa: "°F", b: T.celsius, sb: "°C",
+      conv: { toB: function (x) { return (x - 32) * 5 / 9; }, toA: function (x) { return x * 9 / 5 + 32; } } },
+    { id: "lb", btn: T.bLibras, a: T.libras, sa: "lb", b: T.kilos, sb: "kg", conv: lin(0.45359237) },
+    { id: "oz", btn: T.bOnzas, a: T.onzas, sa: "oz", b: T.gramos, sb: "g", conv: lin(28.349523125) },
+    { id: "cup", btn: T.bTazas, a: T.tazas, sa: "cup", b: T.mililitros, sb: "ml", conv: lin(236.5882365) },
+    { id: "in", btn: T.bPulgadas, a: T.pulgadas, sa: "in", b: T.centimetros, sb: "cm", conv: lin(2.54) },
+    { id: "gal", btn: T.bGalones, a: T.galones, sa: "gal", b: T.litros, sb: "l", conv: lin(3.785411784) },
+    { id: "mph", btn: "mph / km/h", a: T.mph, sa: "mph", b: T.kmh, sb: "km/h", conv: lin(1.609344) }
+  ];
+  var convCur = CONV[0], convA = $("conv-a"), convB = $("conv-b"), rateTxt = T.cargandoCambio, rateWarn = false;
+  CONV.forEach(function (u) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "conv-btn" + (u.main ? " main" : ""); b.textContent = u.btn; b.dataset.id = u.id;
+    b.setAttribute("aria-pressed", String(u === convCur));
+    $("conv-btns").appendChild(b);
+  });
+  $("conv-btns").addEventListener("click", function (e) {
+    var b = e.target.closest(".conv-btn");
+    if (!b) return;
+    var u = CONV.filter(function (x) { return x.id === b.dataset.id; })[0];
+    if (u === convCur) return;
+    convCur = u;
+    Array.prototype.forEach.call(this.children, function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    convA.value = u.money ? "20" : "1";
+    setConv("a");
+  });
+  function setConv(from) {
+    var u = convCur, fmt = u.money ? nf2 : nfMax2;
+    $("conv-a-label").textContent = u.a; $("conv-a-sym").textContent = u.sa;
+    $("conv-b-label").textContent = u.b; $("conv-b-sym").textContent = u.sb;
+    if (from === "a") { var r = u.conv.toB(parseNum(convA.value)); convB.value = isNaN(r) ? "" : fmt.format(r); }
+    else { var r2 = u.conv.toA(parseNum(convB.value)); convA.value = isNaN(r2) ? "" : fmt.format(r2); }
+    var note = $("conv-note");
+    note.className = "rate" + (u.money && rateWarn ? " warn" : "");
+    note.textContent = u.money ? rateTxt : u.id === "oz" ? T.notaOnza : u.id === "cup" ? T.notaTaza : u.id === "gal" ? T.notaGalon : "";
+  }
+  convA.addEventListener("input", function () { setConv("a"); });
+  convB.addEventListener("input", function () { setConv("b"); });
+  [convA, convB].forEach(function (el) { el.addEventListener("focus", function () { el.select(); }); });
+
+  // Tipo de cambio: BCE (Frankfurter) > ExchangeRate-API > última tasa guardada > tasa manual de config.js
+  function showRate(r, txt, warn) {
+    rate = r; rateWarn = !!warn;
+    rateTxt = "1 $ = " + nf4.format(r) + " " + MON.simbolo + " · 1 " + MON.simbolo + " = " + nf4.format(1 / r) + " $ · " + txt;
+    setConv("a");
+  }
+  function loadRate() {
+    var to = MON.codigo;
+    fetchJSON("https://api.frankfurter.app/latest?from=USD&to=" + to)
+      .then(function (d) { return { r: d.rates[to], src: T.bce, fecha: String(d.date || "").split("-").reverse().join("/") }; })
+      .catch(function () {
+        return fetchJSON("https://open.er-api.com/v6/latest/USD")
+          .then(function (d) { return { r: d.rates[to], src: "ExchangeRate-API", fecha: (d.time_last_update_utc || "").slice(5, 16) }; });
+      })
+      .then(function (x) {
+        if (!(x.r > 0)) throw new Error("sin tasa");
+        store("cambio:" + to, { t: Date.now(), r: x.r, src: x.src, fecha: x.fecha });
+        showRate(x.r, x.src + (x.fecha ? " (" + x.fecha + ")" : ""), false);
+      })
+      .catch(function () {
+        var c = load("cambio:" + to);
+        if (c && c.r) showRate(c.r, tx("tasaGuardada", ago(c.t)), Date.now() - c.t > 3 * 86400000);
+        else if (MON.tasaRespaldo) showRate(MON.tasaRespaldo, T.tasaManual, true);
+        else { rate = null; rateWarn = true; rateTxt = T.sinCambio; setConv("a"); }
+      });
+  }
+  setConv("a");
+
+  /* ---------- Sol y aire: índice UV por hora y calidad del aire (Open-Meteo) ---------- */
+  // Las horas se centran solas en el pico de UV de cada lugar (mediodía solar).
+  var UV_TXT = T.uvTxt;
+  function uvClass(v) { return v < 3 ? 0 : v < 6 ? 1 : v < 8 ? 2 : v < 11 ? 3 : 4; }
+  var AQ_TXT = T.aqTxt;
+  function aqClass(v) { return v <= 50 ? 0 : v <= 100 ? 1 : v <= 150 ? 2 : v <= 200 ? 3 : v <= 300 ? 4 : 5; }
+  (function buildUV() {
+    var wrap = $("uv-wrap");
+    DETAILS.forEach(function (D, n) {
+      var div = document.createElement("div");
+      div.className = "uv-place";
+      div.innerHTML = '<div class="uv-head"><strong id="uv-name-' + n + '"></strong>' +
+        '<span class="aq" id="aq-' + n + '"><span class="dot" aria-hidden="true"></span><span id="aq-text-' + n + '">' + T.cargandoAire + '</span></span></div>' +
+        '<div class="uv-bar" id="uv-bar-' + n + '"><p class="status">' + T.cargandoUV + '</p></div>' +
+        '<p class="uv-note small muted" id="uv-note-' + n + '"></p>';
+      wrap.appendChild(div);
+      $("uv-name-" + n).textContent = D.nombre;
+    });
+  })();
+  function renderUV(D, n, d, savedAt) {
+    var td = todayIn(D.zonaHoraria), todayStr = keyOf(td[0], td[1], td[2]), nowH = +localParts(D.zonaHoraria).hour;
+    var rows = [], maxV = -1, maxH = null;
+    d.hourly.time.forEach(function (tm, i) {
+      if (tm.slice(0, 10) !== todayStr) return;
+      var h = +tm.slice(11, 13), v = d.hourly.uv_index[i];
+      rows.push({ h: h, v: v });
+      if (v != null && v > maxV) { maxV = v; maxH = h; }
+    });
+    if (!rows.length) return false;
+    var c0 = maxH == null ? 13 : maxH, from = Math.max(0, c0 - 3), to = Math.min(23, c0 + 4), html = "";
+    rows.forEach(function (x) {
+      if (x.h < from || x.h > to) return;
+      html += '<div class="uv-cell' + (x.h === nowH ? " now" : "") + '">' +
+        '<span class="uv-val uv' + (x.v == null ? 0 : uvClass(x.v)) + '">' + (x.v == null ? "—" : Math.round(x.v)) + "</span>" +
+        '<span class="uv-hour">' + x.h + "h</span></div>";
+    });
+    $("uv-bar-" + n).innerHTML = html;
+    $("uv-bar-" + n).setAttribute("aria-label", tx("uvAria", D.nombre));
+    $("uv-note-" + n).textContent = (savedAt ? tx("datosGuardados", ago(savedAt)) : "") + (maxV >= 0
+      ? tx("uvMax", Math.round(maxV), UV_TXT[uvClass(maxV)], maxH) + (maxV >= 3 ? T.protSi : T.protNo) : "");
+    var aq = !savedAt && d.current && d.current.us_aqi;
+    if (aq != null && aq !== false) {
+      var c = aqClass(aq);
+      $("aq-" + n).className = "aq a" + c;
+      $("aq-text-" + n).textContent = tx("aire", Math.round(aq), AQ_TXT[c]);
+    } else {
+      $("aq-" + n).className = "aq";
+      $("aq-text-" + n).textContent = T.aireSinDatos;
+    }
+    return true;
+  }
+  function loadUV() {
+    if ($("uv-card").dataset.off) return;
+    DETAILS.forEach(function (D, n) {
+      fetchJSON("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=" + D.lat + "&longitude=" + D.lon +
+        "&current=us_aqi&hourly=uv_index&forecast_days=1&timezone=" + encodeURIComponent(D.zonaHoraria))
+        .then(function (d) {
+          if (!renderUV(D, n, d, null)) throw new Error("sin datos de hoy");
+          store("uv:" + D.key, { t: Date.now(), d: d });
+        })
+        .catch(function () {
+          var c = load("uv:" + D.key);
+          if (c && c.d && renderUV(D, n, c.d, c.t)) return;
+          $("uv-bar-" + n).innerHTML = '<p class="status warn">' + T.errUV + '</p>';
+          $("aq-text-" + n).textContent = T.aireSinDatos;
+        });
+    });
+  }
+
+  /* ---------- Carga y refresco ---------- */
+  function loadWeatherAll() {
+    loadDetail(); loadUV(); loadRate();
+    $("updated").textContent = tx("actualizado", fmtTime(tzMain), cityMain);
+  }
+  var lastLoad = Date.now();
+  function loadAll() { lastLoad = Date.now(); loadWeatherAll(); renderCalendarToday(); renderDates(); renderLove(); renderExpr(); }
+  $("refresh").addEventListener("click", loadAll);
+  loadAll();
+  showSplash();
+
+  /* ---------- Aviso a pantalla completa en fechas clave ---------- */
+  // Confeti con los colores de las dos banderas. No se lanza si el móvil tiene "Reducir movimiento".
+  function startConfetti(secs) {
+    var canvas = $("confetti");
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var ctx = canvas.getContext && canvas.getContext("2d");
+    if (reduce || !ctx) return function () {};
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var W = canvas.clientWidth || window.innerWidth, H = canvas.clientHeight || window.innerHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var COLORS = FP.confeti.concat(FU.confeti);
+    var pieces = [], N = Math.round(Math.min(160, W * 0.35));
+    for (var i = 0; i < N; i++) {
+      pieces.push({
+        x: Math.random() * W, y: -20 - Math.random() * H * 0.9,
+        w: 6 + Math.random() * 6, h: 8 + Math.random() * 8,
+        vx: -0.6 + Math.random() * 1.2, vy: 1.6 + Math.random() * 2.4,
+        rot: Math.random() * Math.PI, vr: -0.12 + Math.random() * 0.24,
+        sway: Math.random() * Math.PI * 2, color: COLORS[i % COLORS.length]
+      });
+    }
+    var start = performance.now(), last = start, raf, running = true, spawnEnd = secs * 1000 * 0.55;
+    function frame(now) {
+      if (!running) return;
+      var dt = Math.min(2.5, (now - last) / 16.67); last = now;
+      ctx.clearRect(0, 0, W, H);
+      var alive = 0;
+      pieces.forEach(function (p) {
+        p.sway += 0.05 * dt;
+        p.x += (p.vx + Math.sin(p.sway) * 0.6) * dt;
+        p.y += p.vy * dt;
+        p.rot += p.vr * dt;
+        if (p.y > H + 20 && now - start < spawnEnd) { p.y = -20; p.x = Math.random() * W; }
+        if (p.y <= H + 20) {
+          alive++;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.scale(1, Math.cos(p.sway * 1.7));
+          ctx.fillStyle = p.color; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+        }
+      });
+      if (alive) raf = requestAnimationFrame(frame);
+    }
+    raf = requestAnimationFrame(frame);
+    return function () { running = false; cancelAnimationFrame(raf); ctx.clearRect(0, 0, W, H); };
+  }
+  function showSplash() {
+    var S = CFG.aviso || {};
+    if (S.activo === false) return;
+    var msg = specialMessage();
+    if (!msg) return;
+    var withConfetti = messagesFor(0).some(function (x) { return x.confeti; });
+    var secs = S.segundos || 5, el = $("splash"), bar = $("splash-bar"), timer;
+    $("splash-text").textContent = msg;
+    el.hidden = false;
+    document.body.classList.add("splash-open");
+    bar.style.transition = "none";
+    bar.style.transform = "scaleX(1)";
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        bar.style.transition = "transform " + secs + "s linear";
+        bar.style.transform = "scaleX(0)";
+      });
+    });
+    var stopConfetti = withConfetti ? startConfetti(secs) : function () {};
+    function close() {
+      clearTimeout(timer);
+      stopConfetti();
+      el.classList.add("closing");
+      setTimeout(function () { el.hidden = true; el.classList.remove("closing"); document.body.classList.remove("splash-open"); }, 600);
+    }
+    el.addEventListener("click", close, { once: true });
+    timer = setTimeout(close, secs * 1000);
+  }
+  setInterval(loadWeatherAll, 30 * 60 * 1000);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible" && Date.now() - lastLoad > 10 * 60 * 1000) loadAll();
+  });
+})();
+</script>
+</body>
+</html>
